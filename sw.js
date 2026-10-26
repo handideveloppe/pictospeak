@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vokalys-v3';
+const CACHE_NAME = 'pictospeak-v3';
 const ASSETS = [
   './',
   './index.html',
