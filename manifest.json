@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "short_name": "Vokalys",
+  "name": "Vokalys - Application AAC",
+  "description": "Application d'aide à la communication augmentative et alternative (AAC) conçue pour les enfants, adolescents et adultes ayant des difficultés d'élocution.",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#008080",
+  "display": "standalone",
+  "orientation": "any"
+}

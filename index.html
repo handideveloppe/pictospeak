@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOKALYS PRO - REFERENCE</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VOKALYS">
+    
+    <style>
+        :root { --bg: #F0F2F5; --dark: #2C3E50; --violet: #9b59b6; --orange: #FF9800; --bleu: #2196F3; --vert: #4CAF50; --rouge: #ff4757; --jaune: #f1c40f; --retour: #3498db; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .hide-mod { display: none !important; }
+        .brand { background: white; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 2px solid #ddd; z-index: 10; flex-shrink: 0; }
+        .logo-vokalys { width: 45px; height: 45px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-vokalys svg { width: 100%; height: 100%; object-fit: contain; }
+        .brand h1 { margin: 0; font-size: 24px; color: var(--dark); letter-spacing: 3px; font-weight: 900; }
+        
+        .barre-phrase { background: white; border-bottom: 1px solid #ddd; padding: 10px; display: flex; align-items: center; gap: 10px; min-height: 85px; z-index: 10; flex-shrink: 0; }
+        #zone-mots { 
+            flex: 1; 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            overflow-y: auto; 
+            max-height: 140px; 
+            min-height: 70px; 
+            align-items: center; 
+            padding: 4px;
+        }
+        .mot-bulle { background: white; border-radius: 10px; padding: 5px; border: 2px solid var(--bleu); display: inline-flex; flex-direction: column; align-items: center; min-width: 65px; position: relative; vertical-align: middle; }
+        .mot-bulle img { height: 40px; width: 40px; object-fit: contain; }
+        .mot-bulle span { font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .del-mot { position: absolute; top: -5px; right: -5px; background: var(--rouge); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 12px; cursor: pointer; }
+        
+        #clavier-zone { display: none; background: #d1d4d9; padding: 10px; border-top: 2px solid #abb0b7; z-index: 10; flex-shrink: 0; }
+        .ligne-clavier { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; }
+        .touche { background: white; border: none; padding: 12px 0; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; flex: 1; max-width: 50px; box-shadow: 0 3px 0 #888; text-align: center; }
+        .touche-space { flex: 0.25; max-width: none; font-size: 12px; }
+        .touche-del { flex: 1; max-width: 50px; font-size: 16px; }
+        
+        /* Bandeau du HAUT (6 boutons adaptatifs) */
+        .header { background: var(--dark); padding: 10px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; z-index: 10; flex-shrink: 0; }
+        .btn-h { background: white; border: none; padding: 12px 2px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 8px; text-transform: uppercase; }
+        
+        .pages { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 160px; position: relative; }
+        .page { display: none; max-width: 800px; margin: 0 auto; }
+        .active { display: block !important; }
+        
+        .grille-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-ch { 
+            position: relative; 
+            min-height: 150px; 
+            border: none; 
+            border-radius: 20px; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: center; 
+            background-color: var(--dark); 
+            overflow: hidden;
+            padding: 10px;
+        }
+        .btn-ch img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
+            padding: 8px;
+            z-index: 1;
+        }
+        .btn-ch span { 
+            background: rgba(0,0,0,0.75); 
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            pointer-events: none; 
+            z-index: 2; 
+            font-size: 12px; 
+            text-align: center;
+            width: 100%;
+            word-break: break-word;
+        }
+        
+        .grille-p { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 10px; }
+        .picto { background: white; padding: 8px; border-radius: 15px; position: relative; border: 1px solid #ddd; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
+        .picto img { width: 100%; height: 90px; object-fit: contain; background: #fff; cursor: pointer; transition: transform 0.2s ease; }
+        .picto b { display: block; margin-top: 5px; font-size: 12px; text-transform: uppercase; word-break: break-word; }
+        
+        body.edit-mode .picto img { cursor: grab; transform: scale(1.1); }
+        body.edit-mode .picto img:active { cursor: grabbing; }
+
+        .grille-phrases { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+        .btn-phrase-rapide { background: white; border: 2px solid var(--violet); border-radius: 15px; padding: 18px 15px; font-size: 16px; font-weight: bold; color: var(--dark); text-align: left; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+
+        body.mode-myope .picto img { height: 140px; }
+        body.mode-myope .picto b { font-size: 16px; }
+        body.mode-myope .grille-p { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 15px; }
+        body.mode-myope .btn-ch { min-height: 180px; font-size: 1.2rem; }
+
+        .reglage-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ddd; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .slider-row { display: flex; flex-direction: column; gap: 5px; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .slider-row label { font-size: 14px; font-weight: bold; color: var(--dark); }
+        .slider-row input[type=range], .slider-row select, .slider-row textarea, .slider-row input[type=text] { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-family: inherit; }
+        .switch { position: relative; width: 40px; height: 20px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--vert); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        .footer { background: #34495E; padding: 10px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; position: fixed; bottom: 0; width: 100%; z-index: 100; }
+        .btn-f { padding: 12px 2px; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 9px; text-transform: uppercase; position: relative; }
+
+        #flash-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
+        .clignoter-rapide { animation: flash 0.3s infinite; }
+        .clignoter-doux { animation: flash 1.2s infinite; }
+        .clignoter-fixe { background: red !important; }
+        @keyframes flash { 0% { background: red; } 50% { background: white; } 100% { background: red; } }
+        
+        .ed-tools { display: none; position: absolute; top: 5px; right: 5px; z-index: 50; gap: 4px; pointer-events: auto; }
+        body.edit-mode .ed-tools { display: flex !important; }
+        .ed-btn { width: 26px; height: 26px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid white; font-size: 11px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .ed-crayon { background: var(--bleu); }
+        .ed-photo { background: var(--orange); }
+        .ed-del { background: var(--rouge); }
+        .ed-move { background: var(--violet); }
+
+        .edit-input-field { display: none; width: 100%; padding: 8px; font-size: 16px; font-weight: bold; border: 2px dashed var(--bleu); border-radius: 8px; margin-bottom: 10px; background: #fff; }
+        body.edit-mode .edit-input-field { display: block; }
+
+        #custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 20000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 450px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .modal-box h3 { margin-top: 0; color: var(--dark); }
+        .modal-box input, .modal-box select, .modal-box textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 15px; }
+        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        #maj-bandeau { display: none; position: fixed; top: 0; left: 0; width: 100%; background: var(--vert); color: white; padding: 12px; text-align: center; z-index: 40000; font-weight: bold; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+
+        #zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 30000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #zoom-modal img { max-width: 85vw; max-height: 60vh; object-fit: contain; background: white; padding: 15px; border-radius: 20px; }
+        #zoom-modal h2 { color: white; font-size: 36px; text-transform: uppercase; margin-top: 20px; text-align: center; font-weight: 900; letter-spacing: 2px; }
+
+        #license-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); z-index: 50000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; color: white; text-align: center; }
+        #license-screen .lic-card { background: white; color: var(--dark); border-radius: 20px; padding: 30px; width: 90%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #license-screen input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ccc; border-radius: 10px; margin: 15px 0; text-align: center; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
+        #license-screen button { width: 100%; padding: 15px; background: var(--vert); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        #lic-error { color: var(--rouge); font-weight: bold; font-size: 14px; margin-top: 10px; display: none; }
+
+        /* Styles du Calendrier Visuel Personnalisable */
+        .cal-card { background: white; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .cal-symbol { font-size: 80px; margin: 10px 0; line-height: 1; }
+        .cal-date-banner { background: var(--bleu); color: white; padding: 12px; border-radius: 12px; font-size: 20px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 15px; }
+        .cal-day-head { font-weight: bold; font-size: 11px; color: var(--dark); padding: 5px; background: #eee; border-radius: 5px; }
+        .cal-day { padding: 8px 4px; border-radius: 8px; background: #f8f9fa; font-size: 13px; font-weight: bold; border: 1px solid #e9ecef; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; position: relative; }
+        .cal-today { background: var(--orange) !important; color: white !important; box-shadow: 0 3px 8px rgba(255,152,0,0.4); }
+        .cal-event-tag { font-size: 9px; background: var(--violet); color: white; border-radius: 4px; padding: 2px 4px; margin-top: 4px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Fenêtre Notice */
+        #notice-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 60000; justify-content: center; align-items: center; padding: 20px; }
+        .notice-content-box { background: white; width: 100%; max-width: 700px; height: 85vh; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; }
+        .notice-header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .notice-body { padding: 20px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.6; color: #333; }
+        .notice-footer { padding: 15px; background: #eee; display: flex; gap: 10px; justify-content: flex-end; }
+    </style>
+</head>
+<body onload="init()" onclick="unlockAudio()" ontouchstart="unlockAudio()">
+
+    <div id="license-screen">
+        <div class="lic-card">
+            <div class="logo-vokalys">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                    <rect x="12" y="8" width="76" height="84" rx="14" fill="none" stroke="#2575fc" stroke-width="4" opacity="0.25"/>
+                    <path d="M 24 68 L 24 82 L 38 70 C 33 69 28 67 24 68 Z" fill="#1d4ed8"/>
+                    <path d="M 28 24 C 16 24 13 44 20 60 C 23 67 30 70 37 70 C 63 70 73 53 70 36 C 68 27 58 24 43 24 Z" fill="none" stroke="#1d4ed8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M 30 43 C 36 56 50 56 56 43 C 50 50 36 50 30 43 Z" fill="#1d4ed8"/>
+                    <path d="M 36 47 C 40 52 46 52 50 47 C 46 49 40 49 36 47 Z" fill="#facc15"/>
+                    <path d="M 61 38 C 64 42 64 50 61 54" fill="none" stroke="#06b6d4" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M 69 31 C 75 38 75 54 69 61" fill="none" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h2 style="margin:0 0 10px 0;">ACTIVER VOKALYS</h2>
+            <p style="font-size:14px; color:#555; margin:0;">Saisissez votre code de test (24h) ou votre clé de licence définitive.</p>
+            <input type="text" id="lic-input" placeholder="Ex: TEST-MOI ou VOK-..." maxlength="30">
+            <button onclick="soumettreLicence()">DÉBLOQUER L'APPLICATION</button>
+            
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <p style="font-size:12px; color:#666; margin-bottom: 8px;">Besoin d'une clé USB prête à l'emploi ?</p>
+                <a href="https://site-et-test-vokalys.netlify.app/" target="_blank" style="display: block; width: 100%; padding: 12px; background: #e67e22; color: white; text-decoration: none; border-radius: 10px; font-size: 14px; font-weight: bold; text-align: center;">🛒 COMMANDER LA CLÉ USB (10€)</a>
+            </div>
+
+            <div id="lic-error">Clé invalide ou période de test expirée.</div>
+        </div>
+    </div>
+
+    <div id="maj-bandeau" onclick="forcerMiseAJour()">
+        🚀 Une mise à jour est disponible ! Cliquez ici pour importer la nouvelle version.
+    </div>
+
+    <!-- MODALE NOTICE -->
+    <div id="notice-modal">
+        <div class="notice-content-box">
+            <div class="notice-header">
+                <h3 style="margin:0;">📖 NOTICE OFFICIELLE VOKALYS</h3>
+                <button onclick="fermerNotice()" style="background:var(--rouge); color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">×</button>
+            </div>
+            <div class="notice-body" id="notice-text-content">
+                <h2 style="color:var(--dark); margin-top:0;">Guide d'utilisation et Rôle des Boutons</h2>
+                <p><b>Vokalys</b> est une application d'aide à la communication (AAC) et de repérage temporel conçue pour les enfants, adolescents et adultes en situation de handicap ou de trouble de la parole.</p>
+                
+                <h3>1. Le Bandeau Supérieur</h3>
+                <ul>
+                    <li><b>⬅️ RETOUR :</b> Permet de revenir à la page ou au niveau précédent (historique de navigation).</li>
+                    <li><b>📅 CALENDRIER :</b> Affiche le calendrier visuel du mois avec repérage saisonnier et <b>vos événements personnalisés</b> (rendez-vous, anniversaires, vacances).</li>
+                    <li><b>🔍 GOOGLE :</b> Ouvre un accès direct à la recherche d'images pour illustrer vos pictogrammes.</li>
+                    <li><b>✉ CONTACT :</b> Permet d'envoyer un message de support ou une suggestion par email.</li>
+                    <li><b>⚙ RÉGLAGES :</b> Accède aux options de synthèse vocale, accessibilité, code couleur CAA/PODD et lecture de cette notice.</li>
+                    <li><b>💾 EXPORT :</b> Sauvegarde complète de vos données et chapitres directement sur clé USB ou stockage local.</li>
+                </ul>
+
+                <h3>2. La Barre d'Expression (En haut)</h3>
+                <ul>
+                    <li><b>Zone des mots :</b> Affiche la suite des pictogrammes et mots sélectionnés pour former votre phrase.</li>
+                    <li><b>🔊 Bouton Haut-Parleur :</b> Lit à haute voix la phrase complète construite.</li>
+                    <li><b>❌ Bouton Croix :</b> Efface entièrement la barre d'expression.</li>
+                </ul>
+
+                <h3>3. Le Bandeau Inférieur (Navigation rapide)</h3>
+                <ul>
+                    <li><b>🚨 URGENCE :</b> Déclenche l'appel d'urgence visuel et sonore (clignotement de l'écran + appel répété).</li>
+                    <li><b>💬 PHRASES :</b> Accède à une liste de phrases pré-enregistrées pour faciliter les échanges rapides.</li>
+                    <li><b>⌨️ CLAVIER :</b> Ouvre un clavier virtuel pour écrire du texte libre lettre par lettre.</li>
+                    <li><b>➕ AJOUTER :</b> Permet de créer de nouveaux chapitres ou d'ajouter des pictogrammes via la recherche Arasaac ou la caméra.</li>
+                    <li><b>✏️ EDIT :</b> Active le mode édition pour modifier, déplacer ou supprimer n'importe quel élément de l'application.</li>
+                </ul>
+            </div>
+            <div class="notice-footer">
+                <button onclick="imprimerNotice()" style="padding:10px 15px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🖨️ IMPRIMER</button>
+                <button onclick="telechargerNoticePDF()" style="padding:10px 15px; background:var(--vert); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">📥 TÉLÉCHARGER EN PDF</button>
+                <button onclick="fermerNotice()" style="padding:10px 15px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">FERMER</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="flash-screen" class="clignoter-rapide" onclick="stopA()">
+        <h1 style="color:white; font-size:50px; text-align:center;">APPEL EN COURS</h1>
+        <button style="padding:20px; font-size:24px; border-radius:20px; cursor:pointer;">ARRÊTER</button>
+    </div>
+
+    <div id="zoom-modal" onclick="fermerZoomPicto()">
+        <img id="zoom-img" src="" alt="Picto Agrandie">
+        <h2 id="zoom-title"></h2>
+    </div>
+
+    <div id="custom-modal">
+        <div class="modal-box">
+            <h3 id="modal-title">Correction du texte</h3>
+            <div id="modal-fields"></div>
+            <div class="modal-btns">
+                <button style="background:#ccc;" onclick="closeModal()">Annuler</button>
+                <button id="modal-submit" style="background: var(--vert); color: white; display: block;">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="brand">
+        <div class="logo-vokalys">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <rect x="12" y="8" width="76" height="84" rx="14" fill="none" stroke="#2575fc" stroke-width="4" opacity="0.25"/>
+                <path d="M 24 68 L 24 82 L 38 70 C 33 69 28 67 24 68 Z" fill="#1d4ed8"/>
+                <path d="M 28 24 C 16 24 13 44 20 60 C 23 67 30 70 37 70 C 63 70 73 53 70 36 C 68 27 58 24 43 24 Z" fill="none" stroke="#1d4ed8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M 30 43 C 36 56 50 56 56 43 C 50 50 36 50 30 43 Z" fill="#1d4ed8"/>
+                <path d="M 36 47 C 40 52 46 52 50 47 C 46 49 40 49 36 47 Z" fill="#facc15"/>
+                <path d="M 61 38 C 64 42 64 50 61 54" fill="none" stroke="#06b6d4" stroke-width="5" stroke-linecap="round"/>
+                <path d="M 69 31 C 75 38 75 54 69 61" fill="none" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h1>VOKALYS</h1>
+    </div>
+    <div class="barre-phrase">
+        <div id="zone-mots"></div>
+        <button onclick="parlerPhrase()" style="background:var(--vert); color:white; border-radius:50%; width:50px; height:50px; border:none; font-size:20px; cursor:pointer; flex-shrink:0;" title="Parler">🔊</button>
+        <button onclick="viderBarre()" style="background:var(--rouge); color:white; border-radius:50%; width:50px; height:50px; border:none; font-size:20px; cursor:pointer; flex-shrink:0;" title="Tout effacer">❌</button>
+    </div>
+    
+    <div id="clavier-zone">
+        <div class="ligne-clavier" id="clav-1"></div>
+        <div class="ligne-clavier" id="clav-2"></div>
+        <div class="ligne-clavier" id="clav-3"></div>
+        <div class="ligne-clavier" id="clav-4"></div>
+        <div class="ligne-clavier" id="clav-5">
+            <button class="touche touche-space" style="background:white; color:var(--dark);" onclick="taper(' ')">ESPACE</button>
+            <button class="touche touche-del" style="background:#8e44ad; color:white;" onclick="effacerDernier()">⌫</button>
+        </div>
+    </div>
+
+    <!-- Bandeau du HAUT (6 boutons) -->
+    <div class="header">
+        <button id="mod-RETOUR" class="btn-h" style="background:var(--retour); color:white;" onclick="back()">⬅️ RETOUR</button>
+        <button id="mod-CALENDRIER-BTN" class="btn-h" style="background:var(--orange); color:white;" onclick="go('p-calendrier')">📅 CALENDRIER</button>
+        <button id="mod-GOOGLE" class="btn-h" onclick="window.open('https://google.com/imghp')">🔍 GOOGLE</button>
+        <button id="mod-CONTACT-BTN" class="btn-h" style="background:var(--violet); color:white;" onclick="go('p-contact')">✉ CONTACT</button>
+        <button id="mod-REGLAGES-BTN" class="btn-h" style="background:#7f8c8d; color:white;" onclick="go('p-opts')">⚙ RÉGLAGES</button>
+        <button id="mod-EXPORT" class="btn-h" style="background:var(--vert); color:white;" onclick="ouvrirMenuExport()">💾 EXPORT</button>
+    </div>
+    
+    <div id="main-content" class="pages">
+        <div id="sommaire" class="page active">
+            <div class="grille-menu" id="grille-sommaire"></div>
+        </div>
+
+        <!-- PAGE CALENDRIER VISUEL PERSONNALISABLE -->
+        <div id="p-calendrier" class="page">
+            <h2>📅 CALENDRIER &amp; ÉVÉNEMENTS</h2>
+            <div class="cal-card">
+                <div id="cal-banner" class="cal-date-banner">Chargement...</div>
+                <div id="cal-icon" class="cal-symbol">📅</div>
+                <p id="cal-desc" style="font-size:16px; font-weight:bold; color:var(--dark); margin:10px 0;"></p>
+                <button onclick="parlerDateDuJour()" style="padding:12px 20px; background:var(--vert); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:16px;">🔊 ÉCOUTER LA DATE &amp; ÉVÉNEMENTS</button>
+            </div>
+            
+            <div class="cal-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="margin:0; color:var(--dark);">Mois en cours (Cliquez sur un jour pour ajouter un événement)</h3>
+                </div>
+                <div class="cal-grid" id="cal-grid-days">
+                    <div class="cal-day-head">LUN</div><div class="cal-day-head">MAR</div><div class="cal-day-head">MER</div><div class="cal-day-head">JEU</div><div class="cal-day-head">VEN</div><div class="cal-day-head">SAM</div><div class="cal-day-head">DIM</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-phrases" class="page">
+            <h2>💬 PHRASES RAPIDES</h2>
+            <button class="btn-f" style="background:var(--violet); width:100%; padding:15px; font-size:14px; font-weight:bold; margin-bottom:15px;" onclick="ajouterPhraseRapide()">➕ NOUVELLE PHRASE</button>
+            <div class="grille-phrases" id="liste-phrases">
+                <div class="btn-phrase-rapide" onclick="parler('Bonjour, comment allez-vous ?')">
+                    <span>Bonjour, comment allez-vous ?</span>
+                    <span style="font-size:20px;">🔊</span>
+                </div>
+                <div class="btn-phrase-rapide" onclick="parler('Quel temps fait-il ?')">
+                    <span>Quel temps fait-il ?</span>
+                    <span style="font-size:20px;">🔊</span>
+                </div>
+                <div class="btn-phrase-rapide" onclick="parler('Je veux manger.')">
+                    <span>Je veux manger.</span>
+                    <span style="font-size:20px;">🔊</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-contact" class="page">
+            <h2>✉ CONTACT, SUGGESTIONS &amp; SUPPORT</h2>
+            <div class="reglage-item">
+                <p style="font-size:13px; color:#555; margin-top:0;">Une question ou une idée ? Envoyez-nous un message à <br><b>vokalys@proton.me</b></p>
+                <div class="slider-row">
+                    <label for="contact-sujet">Sujet / Objet :</label>
+                    <input type="text" id="contact-sujet" placeholder="Ex: Suggestion">
+                </div>
+                <div class="slider-row">
+                    <label for="contact-message">Votre message :</label>
+                    <textarea id="contact-message" rows="4" placeholder="Décrivez votre idée..."></textarea>
+                </div>
+                <button class="btn-f" style="background:var(--bleu); width:100%; padding:15px; font-size:12px; margin-top:10px;" onclick="envoyerFormulaireUnique()">✉ ENVOYER LE MESSAGE (PAR MAIL)</button>
+            </div>
+        </div>
+
+        <div id="p-opts" class="page">
+            <h2>📖 DOCUMENTATION</h2>
+            <div class="reglage-item">
+                <button class="btn-f" style="background:var(--bleu); width:100%; padding:15px; font-size:14px; margin-bottom:5px;" onclick="ouvrirNotice()">📖 LIRE LA NOTICE / MODE D'EMPLOI</button>
+            </div>
+
+            <h2>🎨 CODE COULEUR CAA / PODD</h2>
+            <div class="reglage-item">
+                <div class="slider-row">
+                    <label for="podd-mode-select">Palette de couleurs des chapitres :</label>
+                    <select id="podd-mode-select" onchange="changerPalettePodd(this.value)">
+                        <option value="standard">Palette Standard Vokalys</option>
+                        <option value="podd">Norme CAA / PODD (Officielle)</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2>🔑 LICENCE D'UTILISATION</h2>
+            <div class="reglage-item">
+                <p style="font-size:13px; color:#555; margin-top:0;">Statut : <b style="color:var(--vert);">Licence Activée</b></p>
+                <p style="font-size:12px; color:#666;" id="lbl-licence-active">Clé : -</p>
+                <button class="btn-f" style="background:var(--rouge); width:100%; padding:10px; font-size:11px;" onclick="deconnecterLicence()">DÉCONNECTER LA LICENCE SUR CET APPAREIL</button>
+            </div>
+
+            <h2>⚙ PARAMÈTRES VOCAUX</h2>
+            <div class="reglage-item">
+                <div class="slider-row">
+                    <label for="voice-select">Choix de la voix :</label>
+                    <select id="voice-select" onchange="saveVoiceSettings()"><option value="">Chargement des voix...</option></select>
+                </div>
+                <div class="slider-row">
+                    <label for="rate-range">Vitesse de la voix (<span id="rate-val">1.0</span>) :</label>
+                    <input type="range" id="rate-range" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateVoiceSettings()">
+                </div>
+                <div class="slider-row">
+                    <label for="vol-range">Volume (<span id="vol-val">100%</span>) :</label>
+                    <input type="range" id="vol-range" min="0" max="1" step="0.1" value="1.0" oninput="updateVoiceSettings()">
+                </div>
+                <div class="toggle-row">
+                    <span>Mode Bip + Flash (Tablette lente / Sans voix)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-bip-mode" onchange="toggleBipMode(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <h2>👁 ACCESSIBILITÉ VISUELLE</h2>
+            <div class="reglage-item">
+                <div class="toggle-row">
+                    <span>Mode Myope (Grand affichage des pictos)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-mode-myope" onchange="toggleModeMyope(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <h2>🚨 PARAMÈTRES D'ALERTE / INFIRMIÈRE</h2>
+            <div class="reglage-item">
+                <div class="slider-row">
+                    <label for="flash-style">Style de clignotement :</label>
+                    <select id="flash-style" onchange="saveFlashSettings()">
+                        <option value="rapide">Flash rapide (Par défaut)</option>
+                        <option value="doux">Flash doux (Anti-crise / Épilepsie)</option>
+                        <option value="fixe">Rouge fixe (Sans clignotement)</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2>🔄 MISE À JOUR SYSTÈME</h2>
+            <div class="reglage-item">
+                <p style="font-size:13px; color:#555; margin-top:0;">Version actuelle du code : <b id="lbl-version">2026.15</b></p>
+            </div>
+
+            <h2>💾 SAUVEGARDE ET RESTAURATION GLOBALE</h2>
+            <div class="reglage-item">
+                <button class="btn-f" style="background:var(--violet); width:100%; padding:15px; font-size:12px; margin-bottom: 10px;" onclick="document.getElementById('import-global-file').click();">📥 IMPORTER LA SAUVEGARDE GLOBALE (HTML)</button>
+                <button class="btn-f" style="background:var(--orange); width:100%; padding:15px; font-size:12px;" onclick="effacerCacheSansPerteDonnees()">🧹 EFFACER LE CACHE (SANS RIEN PERDRE)</button>
+            </div>
+
+            <h2>⚙ INTERRUPTEURS VISUELS</h2>
+            <div class="reglage-item">
+                <h3>Bandeau Haut</h3>
+                <div class="toggle-row"><span>Bouton Retour</span><label class="switch"><input type="checkbox" id="chk-RETOUR" checked onchange="setMod('RETOUR', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Calendrier</span><label class="switch"><input type="checkbox" id="chk-CALENDRIER-BTN" checked onchange="setMod('CALENDRIER-BTN', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Google</span><label class="switch"><input type="checkbox" id="chk-GOOGLE" checked onchange="setMod('GOOGLE', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Contact</span><label class="switch"><input type="checkbox" id="chk-CONTACT-BTN" checked onchange="setMod('CONTACT-BTN', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Réglages</span><label class="switch"><input type="checkbox" id="chk-REGLAGES-BTN" checked onchange="setMod('REGLAGES-BTN', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Export (Save)</span><label class="switch"><input type="checkbox" id="chk-EXPORT" checked onchange="setMod('EXPORT', this.checked)"><span class="slider"></span></label></div>
+
+                <h3>Menu &amp; Bas</h3>
+                <div class="toggle-row"><span>Appel Infirmier (Bas de page)</span><label class="switch"><input type="checkbox" id="chk-ALERTE-FOOTER" checked onchange="setMod('ALERTE-FOOTER', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Phrases</span><label class="switch"><input type="checkbox" id="chk-PHRASES" checked onchange="setMod('PHRASES', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Clavier</span><label class="switch"><input type="checkbox" id="chk-CLAVIER" checked onchange="setMod('CLAVIER', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Ajouter</span><label class="switch"><input type="checkbox" id="chk-AJOUTER" checked onchange="setMod('AJOUTER', this.checked)"><span class="slider"></span></label></div>
+                <div class="toggle-row"><span>Bouton Edit</span><label class="switch"><input type="checkbox" id="chk-EDIT" checked onchange="setMod('EDIT', this.checked)"><span class="slider"></span></label></div>
+            </div>
+            <button class="btn-f" style="background:var(--rouge); width:100%; padding:15px; font-weight:bold;" onclick="resetApp()">⚠ RESET TOTAL TABLETTE</button>
+        </div>
+    </div>
+    
+    <!-- Barre du BAS (5 boutons) -->
+    <div class="footer">
+        <button id="mod-ALERTE-FOOTER" class="btn-f" style="background:var(--rouge);" onclick="alerte()">🚨 URGENCE</button>
+        <button id="mod-PHRASES" class="btn-f" style="background:var(--violet);" onclick="go('p-phrases')">💬 PHRASES</button>
+        <button id="mod-CLAVIER" class="btn-f" style="background:var(--dark);" onclick="toggleClavier()">⌨️ CLAVIER</button>
+        <button id="mod-AJOUTER" class="btn-f" style="background:var(--bleu);" onclick="ouvrirMenuAjouter()">➕ AJOUTER</button>
+        <button id="mod-EDIT" class="btn-f" style="background:var(--jaune); color:black;" onclick="modeEdit()">✏️ EDIT</button>
+    </div>
+
+    <input type="file" id="img-camera" style="display:none" accept="image/*" capture="environment" onchange="imgCharge(this)">
+    <input type="file" id="img-file" style="display:none" accept="image/*" onchange="imgCharge(this)">
+    <input type="file" id="import-global-file" style="display:none" accept=".html" onchange="importerSauvegardeGlobale(this)">
+
+    <script>
+        const APP_VERSION = "2026.15";
+
+        let siri, hist = ['sommaire'], voicesList = [], audioUnlocked = false, bipModeActive = false;
+        const nms = ["IDENTITE DU L'UTILISATEUR", "FAMILLE & PERSONELS", "BESOINS IMMEDIATS", "EMOTIONS & ETAT", "ACTIONS & DEMANDE", "LIEUX & SORTIES"];
+        const clsStandard = ["#9b59b6", "#FF9800", "#2196F3", "#4CAF50", "#e67e22", "#34495e"];
+        const clsPodd = ["#f1c40f", "#27ae60", "#d35400", "#2980b9", "#e84393", "#7f8c8d"];
+
+        const repereMois = [
+            { mois: "Janvier", symbol: "❄️", desc: "Hiver — Bonne année !", vocal: "C'est le mois de la nouvelle année et de la neige." },
+            { mois: "Février", symbol: "🎭", desc: "Carnaval & Masques", vocal: "C'est le mois du carnaval et des déguisements." },
+            { mois: "Mars", symbol: "🌱", desc: "Le Printemps arrive", vocal: "C'est le mois de l'arrivée du printemps." },
+            { mois: "Avril", symbol: "🐣", desc: "Pâques & Fleurs", vocal: "C'est le mois de Pâques et du chocolat." },
+            { mois: "Mai", symbol: "🌸", desc: "Le Muguet & les Fleurs", vocal: "C'est le mois du muguet et des fleurs." },
+            { mois: "Juin", symbol: "☀️", desc: "L'Été commence", vocal: "C'est le mois du début de l'été et du soleil." },
+            { mois: "Juillet", symbol: "🎆", desc: "Feux d'artifice & Vacances", vocal: "C'est le mois des feux d'artifice et des grandes vacances." },
+            { mois: "Août", symbol: "🏖️", desc: "Plage & Soleil", vocal: "C'est le mois de la plage et du beau temps." },
+            { mois: "Septembre", symbol: "🎒", desc: "Rentrée des classes", vocal: "C'est le mois de la rentrée des classes." },
+            { mois: "Octobre", symbol: "🎃", desc: "L'Automne & Citrouille", vocal: "C'est le mois d'Halloween et des citrouilles." },
+            { mois: "Novembre", symbol: "🍂", desc: "Feuilles d'Automne", vocal: "C'est le mois des feuilles d'automne qui tombent." },
+            { mois: "Décembre", symbol: "🎄", desc: "Le Sapin de Noël & la Neige", vocal: "C'est le mois du sapin de Noël et des fêtes." }
+        ];
+
+        let dateVocaleComplet = "";
+
+        function init() {
+            verifierLicenceAuDemarrage();
+            verifierVersionStockee();
+
+            const saved = localStorage.getItem('vokalys_data');
+            if (saved) document.getElementById('main-content').innerHTML = saved; 
+            else generateStructure(); 
+            
+            initClavier();
+            syncSwitches();
+            loadVoices();
+            setTimeout(loadVoices, 300);
+            setTimeout(loadVoices, 1000);
+            if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = loadVoices;
+            
+            loadVoiceSettings();
+            loadFlashSettings();
+            
+            bipModeActive = localStorage.getItem('vokalys_bip_mode') === 'true';
+            let chkBip = document.getElementById('chk-bip-mode');
+            if(chkBip) chkBip.checked = bipModeActive;
+
+            let myopeActive = localStorage.getItem('vokalys_mode_myope') === 'true';
+            if(myopeActive) {
+                document.body.classList.add('mode-myope');
+                let chkMyope = document.getElementById('chk-mode-myope');
+                if(chkMyope) chkMyope.checked = true;
+            }
+
+            let savedPodd = localStorage.getItem('vokalys_podd_mode') || 'standard';
+            let poddSelect = document.getElementById('podd-mode-select');
+            if(poddSelect) poddSelect.value = savedPodd;
+
+            attacherEvenementsZoom();
+            refreshEdit();
+            genererCalendrierVisuel();
+        }
+
+        function ouvrirNotice() { document.getElementById('notice-modal').style.display = 'flex'; }
+        function fermerNotice() { document.getElementById('notice-modal').style.display = 'none'; }
+        
+        function imprimerNotice() {
+            let contenu = document.getElementById('notice-text-content').innerHTML;
+            let fenetre = window.open('', '', 'height=600,width=800');
+            fenetre.document.write('<html><head><title>Notice Vokalys</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>');
+            fenetre.document.close();
+            fenetre.focus();
+            fenetre.print();
+        }
+
+        function telechargerNoticePDF() {
+            let contenu = document.getElementById('notice-text-content').innerHTML;
+            let blob = new Blob(['<!DOCTYPE html><html><head><meta charset="utf-8"><title>Notice Vokalys</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>'], {type: 'text/html'});
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'NOTICE_VOKALYS.html';
+            a.click();
+            alert("✅ Notice téléchargée ! Vous pouvez l'ouvrir dans un navigateur ou l'imprimer en PDF.");
+        }
+
+        function changerPalettePodd(val) {
+            localStorage.setItem('vokalys_podd_mode', val);
+            let palette = (val === 'podd') ? clsPodd : clsStandard;
+            let boutonsChapitres = document.querySelectorAll('#grille-sommaire .btn-ch');
+            boutonsChapitres.forEach((btn, index) => {
+                if(palette[index]) btn.style.backgroundColor = palette[index];
+            });
+            autoSave();
+            alert("✅ Palette de couleurs mise à jour !");
+        }
+
+        function genererCalendrierVisuel() {
+            let maintenant = new Date();
+            let jourNum = maintenant.getDate();
+            let moisIdx = maintenant.getMonth();
+            let annee = maintenant.getFullYear();
+            
+            let moisNom = repereMois[moisIdx].mois;
+            let symbol = repereMois[moisIdx].symbol;
+            let desc = repereMois[moisIdx].desc;
+            let phraseVocalMois = repereMois[moisIdx].vocal;
+
+            let joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+            let jourNom = joursSemaine[maintenant.getDay()];
+
+            let banner = document.getElementById('cal-banner');
+            let icon = document.getElementById('cal-icon');
+            let descEl = document.getElementById('cal-desc');
+
+            let strDate = `${jourNom} ${jourNum} ${moisNom} ${annee}`;
+            if(banner) banner.innerText = strDate;
+            if(icon) icon.innerText = symbol;
+            if(descEl) descEl.innerText = desc;
+
+            let eventsKey = `vokalys_events_${annee}_${moisIdx}`;
+            let eventsMap = JSON.parse(localStorage.getItem(eventsKey) || "{}");
+
+            let listeEvenementsVocaux = [];
+
+            let gridContainer = document.getElementById('cal-grid-days');
+            if(gridContainer) {
+                gridContainer.querySelectorAll('.cal-day').forEach(el => el.remove());
+                
+                let premierDuMois = new Date(annee, moisIdx, 1);
+                let nbJoursMois = new Date(annee, moisIdx + 1, 0).getDate();
+                let decalage = (premierDuMois.getDay() + 6) % 7; 
+
+                for(let i=0; i<decalage; i++) {
+                    let emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'cal-day';
+                    emptyDiv.style.background = 'transparent';
+                    emptyDiv.style.border = 'none';
+                    gridContainer.appendChild(emptyDiv);
+                }
+
+                for(let d=1; d<=nbJoursMois; d++) {
+                    let dayDiv = document.createElement('div');
+                    dayDiv.className = 'cal-day';
+                    if(d === jourNum) dayDiv.classList.add('cal-today');
+                    
+                    let numSpan = document.createElement('span');
+                    numSpan.innerText = d;
+                    dayDiv.appendChild(numSpan);
+
+                    let eventText = eventsMap[d];
+                    if(eventText) {
+                        let tag = document.createElement('div');
+                        tag.className = 'cal-event-tag';
+                        tag.innerText = eventText;
+                        dayDiv.appendChild(tag);
+                        if(d === jourNum) listeEvenementsVocaux.push(eventText);
+                    }
+
+                    dayDiv.onclick = function() {
+                        gererEvenementJour(d, moisNom, annee, eventsMap, eventsKey);
+                    };
+
+                    gridContainer.appendChild(dayDiv);
+                }
+            }
+
+            dateVocaleComplet = `Aujourd'hui nous sommes ${jourNom} ${jourNum} ${moisNom} ${annee}. ${phraseVocalMois}`;
+            if(listeEvenementsVocaux.length > 0) {
+                dateVocaleComplet += ` Événement prévu aujourd'hui : ${listeEvenementsVocaux.join(', ')}.`;
+            }
+        }
+
+        function gererEvenementJour(jour, moisNom, annee, eventsMap, eventsKey) {
+            let actEvent = eventsMap[jour] || "";
+            let fields = `
+                <p style="font-size:13px; color:#555;">Jour : <b>${jour} ${moisNom} ${annee}</b></p>
+                <input type="text" id="ev-input" value="${actEvent}" placeholder="Ex: RV Docteur, Anniversaire, Vacances...">
+            `;
+            openModal("📅 Gérer l'événement du jour", fields, () => {
+                let val = document.getElementById('ev-input').value.trim();
+                if(val) {
+                    eventsMap[jour] = val;
+                } else {
+                    delete eventsMap[jour];
+                }
+                localStorage.setItem(eventsKey, JSON.stringify(eventsMap));
+                genererCalendrierVisuel();
+                alert("✅ Événement enregistré avec succès !");
+            });
+        }
+
+        function parlerDateDuJour() {
+            if(!dateVocaleComplet) genererCalendrierVisuel();
+            parler(dateVocaleComplet);
+        }
+
+        function effacerCacheSansPerteDonnees() {
+            if (confirm("Voulez-vous nettoyer le cache de l'application ? Vos données et pictogrammes seront conservés.")) {
+                if ('caches' in window) caches.keys().then(names => names.forEach(name => caches.delete(name)));
+                if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+                alert("✅ Cache nettoyé avec succès !");
+                location.reload(true);
+            }
+        }
+
+        function validerFormatCle(cle) {
+            if (!cle) return false;
+            let code = cle.trim().toUpperCase();
+            if (code === "VOKALYS2026" || code === "1234") return true;
+            return code.startsWith("VOK-") && code.length >= 6;
+        }
+
+        function verifierLicenceAuDemarrage() {
+            let cleStockee = localStorage.getItem('vokalys_licence_key');
+            let screenLic = document.getElementById('license-screen');
+            let lblLic = document.getElementById('lbl-licence-active');
+
+            if (!cleStockee) {
+                if(screenLic) screenLic.style.display = 'flex';
+                return;
+            }
+
+            if (cleStockee.startsWith("TEST-")) {
+                let premiereFois = localStorage.getItem('vokalys_date_test_' + cleStockee);
+                let maintenant = new Date().getTime();
+                if (premiereFois && (maintenant - parseInt(premiereFois) > 24 * 60 * 60 * 1000)) {
+                    if(screenLic) screenLic.style.display = 'flex';
+                    let err = document.getElementById('lic-error');
+                    if(err) { err.innerText = "La période de test de 24h a expiré."; err.style.display = 'block'; }
+                    return;
+                }
+            }
+
+            if (validerFormatCle(cleStockee) || cleStockee.startsWith("TEST-")) {
+                if(screenLic) screenLic.style.display = 'none';
+                if(lblLic) lblLic.innerText = "Clé enregistrée : " + cleStockee;
+            } else {
+                if(screenLic) screenLic.style.display = 'flex';
+            }
+        }
+
+        function soumettreLicence() {
+            let input = document.getElementById('lic-input');
+            let err = document.getElementById('lic-error');
+            if(!input) return;
+            let cleSaisie = input.value.trim().toUpperCase();
+
+            if (cleSaisie.startsWith("TEST-")) {
+                let premiereFois = localStorage.getItem('vokalys_date_test_' + cleSaisie);
+                if (!premiereFois) localStorage.setItem('vokalys_date_test_' + cleSaisie, new Date().getTime());
+                localStorage.setItem('vokalys_licence_key', cleSaisie);
+                if(err) err.style.display = 'none';
+                verifierLicenceAuDemarrage();
+            } else if (validerFormatCle(cleSaisie)) {
+                localStorage.setItem('vokalys_licence_key', cleSaisie);
+                if(err) err.style.display = 'none';
+                verifierLicenceAuDemarrage();
+            } else {
+                if(err) { err.innerText = "Clé invalide. Entrez un code TEST-xxx ou une licence valide."; err.style.display = 'block'; }
+            }
+        }
+
+        function deconnecterLicence() {
+            if (confirm("Voulez-vous désactiver la licence sur cet appareil ?")) {
+                localStorage.removeItem('vokalys_licence_key');
+                verifierLicenceAuDemarrage();
+            }
+        }
+
+        function unlockAudio() {
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.resume();
+                    if (!audioUnlocked) {
+                        let dummy = new SpeechSynthesisUtterance(" ");
+                        dummy.volume = 0.01;
+                        window.speechSynthesis.speak(dummy);
+                        audioUnlocked = true;
+                    }
+                } catch(e) {}
+            }
+        }
+
+        function toggleModeMyope(val) {
+            if(val) { document.body.classList.add('mode-myope'); localStorage.setItem('vokalys_mode_myope', 'true'); }
+            else { document.body.classList.remove('mode-myope'); localStorage.setItem('vokalys_mode_myope', 'false'); }
+        }
+
+        function verifierVersionStockee() {
+            let derniereVersionConnue = localStorage.getItem('vokalys_app_version');
+            if (!derniereVersionConnue) localStorage.setItem('vokalys_app_version', APP_VERSION);
+            else if (derniereVersionConnue !== APP_VERSION) afficherBandeauMaj();
+        }
+
+        function afficherBandeauMaj() {
+            let bandeau = document.getElementById('maj-bandeau');
+            if (bandeau) bandeau.style.display = 'block';
+        }
+
+        function forcerMiseAJour() {
+            if (confirm("Voulez-vous actualiser l'application avec la dernière version ?")) {
+                localStorage.setItem('vokalys_app_version', APP_VERSION);
+                if ('caches' in window) caches.keys().then(names => names.forEach(name => caches.delete(name)));
+                if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+                setTimeout(() => { window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now(); }, 300);
+            }
+        }
+
+        function envoyerFormulaireUnique() {
+            let sujetInput = document.getElementById('contact-sujet');
+            let messageInput = document.getElementById('contact-message');
+            let sujet = sujetInput ? sujetInput.value.trim() : "";
+            let message = messageInput ? messageInput.value.trim() : "";
+            if(!sujet && !message) { alert("Veuillez remplir au moins l'objet ou le message."); return; }
+            window.location.href = `mailto:vokalys@proton.me?subject=${encodeURIComponent(sujet || "Support Vokalys")}&body=${encodeURIComponent(message)}`;
+        }
+
+        function jouerBipSecours() {
+            try {
+                let ctx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.15);
+            } catch(e) {}
+        }
+
+        function toggleBipMode(val) { bipModeActive = val; localStorage.setItem('vokalys_bip_mode', val); }
+
+        function agrandirPicto(src, nom) {
+            let modal = document.getElementById('zoom-modal');
+            document.getElementById('zoom-img').src = src;
+            document.getElementById('zoom-title').innerText = nom;
+            modal.style.display = 'flex';
+        }
+
+        function fermerZoomPicto() { document.getElementById('zoom-modal').style.display = 'none'; }
+
+        function attacherEvenementsZoom() {
+            document.querySelectorAll('.picto img').forEach(img => {
+                img.ondblclick = function(e) {
+                    e.stopPropagation();
+                    let nom = this.parentElement.querySelector('b') ? this.parentElement.querySelector('b').innerText : "";
+                    agrandirPicto(this.src, nom);
+                };
+            });
+        }
+
+        function loadVoices() {
+            if (!('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.resume();
+                let all = window.speechSynthesis.getVoices();
+                voicesList = all.filter(v => v.lang && (v.lang.includes('fr') || v.lang.includes('FR')));
+                if (voicesList.length === 0) voicesList = all;
+                let select = document.getElementById('voice-select');
+                if(!select) return;
+                let currentVal = select.value;
+                select.innerHTML = '';
+                if(voicesList.length === 0) { select.innerHTML = '<option value="">Voix par défaut</option>'; return; }
+                voicesList.forEach((v, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = index; opt.innerText = `${v.name} (${v.lang})`;
+                    select.appendChild(opt);
+                });
+                let savedVoice = localStorage.getItem('vokalys_voice');
+                if(savedVoice !== null && voicesList[savedVoice]) select.value = savedVoice;
+                else if (currentVal !== "") select.value = currentVal;
+            } catch(e) {}
+        }
+
+        function updateVoiceSettings() {
+            let rate = document.getElementById('rate-range').value;
+            let vol = document.getElementById('vol-range').value;
+            document.getElementById('rate-val').innerText = rate;
+            document.getElementById('vol-val').innerText = Math.round(vol * 100) + '%';
+            saveVoiceSettings();
+        }
+
+        function saveVoiceSettings() {
+            localStorage.setItem('vokalys_voice', document.getElementById('voice-select').value);
+            localStorage.setItem('vokalys_rate', document.getElementById('rate-range').value);
+            localStorage.setItem('vokalys_vol', document.getElementById('vol-range').value);
+        }
+
+        function loadVoiceSettings() {
+            let rate = localStorage.getItem('vokalys_rate') || "1.0";
+            let vol = localStorage.getItem('vokalys_vol') || "1.0";
+            document.getElementById('rate-range').value = rate;
+            document.getElementById('vol-range').value = vol;
+            document.getElementById('rate-val').innerText = rate;
+            document.getElementById('vol-val').innerText = Math.round(vol * 100) + '%';
+        }
+
+        function saveFlashSettings() {
+            let style = document.getElementById('flash-style').value;
+            localStorage.setItem('vokalys_flash', style);
+            applyFlashStyle(style);
+        }
+
+        function loadFlashSettings() {
+            let style = localStorage.getItem('vokalys_flash') || "rapide";
+            let select = document.getElementById('flash-style');
+            if(select) select.value = style;
+            applyFlashStyle(style);
+        }
+
+        function applyFlashStyle(style) {
+            let flash = document.getElementById('flash-screen');
+            if(!flash) return;
+            flash.className = "";
+            if(style === "doux") flash.classList.add('clignoter-doux');
+            else if(style === "fixe") flash.classList.add('clignoter-fixe');
+            else flash.classList.add('clignoter-rapide');
+        }
+
+        function autoSave() { 
+            localStorage.setItem('vokalys_data', document.getElementById('main-content').innerHTML); 
+            attacherEvenementsZoom();
+            refreshEdit();
+        }
+
+        function syncSwitches() {
+            const mods = ['RETOUR', 'CALENDRIER-BTN', 'GOOGLE', 'CONTACT-BTN', 'REGLAGES-BTN', 'ALERTE-FOOTER', 'PHRASES', 'CLAVIER', 'AJOUTER', 'EDIT', 'EXPORT'];
+            mods.forEach(id => {
+                let el = document.getElementById('mod-' + id) || document.getElementById(id);
+                let chk = document.getElementById('chk-' + id);
+                if(el && chk) chk.checked = !el.classList.contains('hide-mod');
+            });
+        }
+
+        function generateStructure() {
+            let grilleSommaire = document.getElementById('grille-sommaire');
+            let savedPodd = localStorage.getItem('vokalys_podd_mode') || 'standard';
+            let palette = (savedPodd === 'podd') ? clsPodd : clsStandard;
+
+            if(grilleSommaire) {
+                grilleSommaire.innerHTML = "";
+                nms.forEach((n, i) => { 
+                    grilleSommaire.innerHTML += `<button class="btn-ch" style="background-color:${palette[i]}" onclick="go('ch-${i+1}')"><span>${n}</span></button>`; 
+                });
+            }
+            nms.forEach((n, i) => {
+                let chID = `ch-${i+1}`;
+                if(!document.getElementById(chID)) {
+                    let chHTML = `<div id="${chID}" class="page">
+                        <h2><span>${n}</span></h2>
+                        <input type="text" class="edit-input-field" value="${n}" oninput="modifierTitreDirect(this)">
+                        <div class="grille-p"></div>
+                    </div>`;
+                    document.getElementById('main-content').insertAdjacentHTML('beforeend', chHTML);
+                }
+            });
+        }
+
+        function modifierTitreDirect(inputEl) {
+            let pageDiv = inputEl.closest('.page');
+            if(!pageDiv) return;
+            let span = pageDiv.querySelector('h2 span');
+            if(span) {
+                let nouveauTexte = inputEl.value.toUpperCase();
+                span.innerText = nouveauTexte;
+                let pageId = pageDiv.id;
+                document.querySelectorAll(`.btn-ch[onclick*="${pageId}"] span`).forEach(btnSpan => { btnSpan.innerText = nouveauTexte; });
+                autoSave();
+            }
+        }
+
+        function viderBarre() { document.getElementById('zone-mots').innerHTML = ""; autoSave(); }
+
+        function effacerDernier() {
+            unlockAudio();
+            let z = document.getElementById('zone-mots');
+            let last = z.lastElementChild || z.lastChild;
+            if(!last) return;
+            if (last.nodeType === 3) {
+                if (last.nodeValue.length > 1) last.nodeValue = last.nodeValue.slice(0, -1);
+                else z.removeChild(last);
+            } else last.remove();
+            autoSave();
+        }
+
+        function taper(x) { 
+            unlockAudio();
+            let z = document.getElementById('zone-mots'); 
+            parler(x);
+            let last = z.lastChild;
+            if (last && last.nodeType === 3) last.nodeValue += x;
+            else z.appendChild(document.createTextNode(x));
+            autoSave();
+        }
+
+        function addBarre(n,s) { 
+            unlockAudio();
+            if(document.body.classList.contains('edit-mode')) return; 
+            if (bipModeActive) { jouerBipSecours(); agrandirPicto(s, n); }
+            else parler(n);
+            document.getElementById('zone-mots').innerHTML += `<div class="mot-bulle"><div class="del-mot" onclick="this.parentElement.remove()">×</div><img src="${s}"><span>${n}</span></div>`; 
+            autoSave();
+        }
+
+        function nettoyerTextePourVocal(texte) {
+            if (!texte) return "";
+            return texte.trim();
+        }
+
+        function parler(t, maxVolume = false) { 
+            if (bipModeActive) { jouerBipSecours(); return; }
+            if (!t || !t.trim()) return;
+            if (!('speechSynthesis' in window)) return;
+
+            try {
+                window.speechSynthesis.resume();
+                window.speechSynthesis.cancel(); 
+                let texteAjuste = nettoyerTextePourVocal(t);
+
+                let m = new SpeechSynthesisUtterance(texteAjuste); 
+                m.lang = 'fr-FR'; 
+                let savedVoiceIdx = localStorage.getItem('vokalys_voice');
+                if(savedVoiceIdx !== null && typeof voicesList !== 'undefined' && voicesList[savedVoiceIdx]) m.voice = voicesList[savedVoiceIdx];
+                m.rate = parseFloat(localStorage.getItem('vokalys_rate') || 1.0);
+                m.volume = maxVolume ? 1.0 : parseFloat(localStorage.getItem('vokalys_vol') || 1.0);
+                window.speechSynthesis.speak(m);
+            } catch(e) {}
+        }
+
+        function parlerPhrase() { 
+            unlockAudio();
+            let t = ""; 
+            let z = document.getElementById('zone-mots');
+            z.childNodes.forEach(node => {
+                if (node.nodeType === 3) t += node.nodeValue;
+                else if (node.nodeType === 1) {
+                    let span = node.querySelector('span');
+                    if (span) t += " " + (span.innerText || span.textContent) + " ";
+                }
+            });
+            parler(t); 
+        }
+
+        function go(id) { 
+            document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); 
+            let target=document.getElementById(id); 
+            if(target) {
+                target.classList.add('active'); 
+                let mainC = document.getElementById('main-content');
+                if(mainC) mainC.scrollTop = 0;
+            }
+            if(id !== hist[hist.length-1]) hist.push(id); 
+        }
+
+        function back() { 
+            if(hist.length > 1) {
+                hist.pop(); 
+                let prevId = hist[hist.length - 1];
+                let target = document.getElementById(prevId);
+                if(target) go(prevId);
+                else { hist = ['sommaire']; go('sommaire'); }
+            } else {
+                hist = ['sommaire'];
+                go('sommaire');
+            }
+        }
+        
+        function toggleClavier() { 
+            unlockAudio();
+            let c = document.getElementById('clavier-zone');
+            if (c.style.display === 'block') c.style.display = 'none';
+            else c.style.display = 'block';
+        }
+
+        function modeEdit() { document.body.classList.toggle('edit-mode'); refreshEdit(); autoSave(); }
+        
+        function openModal(title, htmlFields, onSubmit) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-fields').innerHTML = htmlFields;
+            document.getElementById('custom-modal').style.display = 'flex';
+            let btnSubmit = document.getElementById('modal-submit');
+            btnSubmit.style.display = 'block';
+            btnSubmit.onclick = function() { if(onSubmit) onSubmit(); closeModal(); };
+        }
+
+        function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
+
+        function ouvrirMenuAjouter() {
+            let fields = `
+                <p style="font-size:13px; color:#555; margin-bottom:12px;">Que souhaitez-vous ajouter ?</p>
+                <button style="width:100%; padding:14px; margin-bottom:10px; background:var(--bleu); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closeModal(); ouvrirRechercheArasaacInterne();">🎨 PICTOGRAMME (RECHERCHE ARASAAC)</button>
+                <button style="width:100%; padding:14px; margin-bottom:10px; background:var(--orange); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closeModal(); ouvrirMenuPhoto();">📸 PHOTO (CAMERA / GALERIE)</button>
+                <button style="width:100%; padding:14px; background:var(--violet); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="closeModal(); addCh();">📁 NOUVEAU CHAPITRE</button>
+            `;
+            openModal("➕ AJOUTER UN ÉLÉMENT", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function ouvrirRechercheArasaacInterne() {
+            let chapters = [];
+            document.querySelectorAll('.pages .page').forEach(page => {
+                let id = page.id;
+                if(id !== 'p-phrases' && id !== 'p-contact' && id !== 'p-opts' && id !== 'p-calendrier') {
+                    let span = page.querySelector('h2 span');
+                    chapters.push({ id: id, name: span ? span.innerText : id });
+                }
+            });
+            let optionsHtml = chapters.map(ch => `<option value="${ch.id}">${ch.name}</option>`).join('');
+
+            let fields = `
+                <p style="font-size:13px; color:#555; margin-bottom:6px;">Rechercher un pictogramme sur Arasaac :</p>
+                <div style="display:flex; gap:6px; margin-bottom:10px;">
+                    <input type="text" id="arasaac-search-input" placeholder="Ex: Manger, eau, voiture..." style="margin:0; flex:1;" onkeydown="if(event.key==='Enter') executerRechercheArasaac()">
+                    <button onclick="executerRechercheArasaac()" style="padding:0 12px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🔍</button>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:bold; color:var(--dark);">Choisir le chapitre de destination :</label>
+                    <select id="arasaac-target-chapter" style="margin-top:4px;">${optionsHtml}</select>
+                </div>
+                <div id="arasaac-results-container" style="max-height:200px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(70px,1fr)); gap:8px; border:1px solid #ddd; padding:8px; border-radius:8px; background:#f9f9f9; min-height:80px;">
+                    <span style="grid-column:1/-1; text-align:center; color:#888; font-size:13px; margin-top:20px;">Tapez un mot et cliquez sur rechercher...</span>
+                </div>
+            `;
+            openModal("🎨 RECHERCHE ARASAAC INTÉGRÉE", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function executerRechercheArasaac() {
+            let input = document.getElementById('arasaac-search-input');
+            let container = document.getElementById('arasaac-results-container');
+            if(!input || !container) return;
+            let query = input.value.trim();
+            if(!query) { alert("Veuillez entrer un mot clé."); return; }
+
+            container.innerHTML = `<span style="grid-column:1/-1; text-align:center; color:#666; font-size:13px; margin-top:20px;">Recherche en cours...</span>`;
+
+            fetch(`https://api.arasaac.org/v1/pictograms/fr/search/${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(!data || data.length === 0) {
+                        container.innerHTML = `<span style="grid-column:1/-1; text-align:center; color:var(--rouge); font-size:13px; margin-top:20px;">Aucun pictogramme trouvé.</span>`;
+                        return;
+                    }
+                    container.innerHTML = "";
+                    data.slice(0, 30).forEach(item => {
+                        let pictoId = item._id;
+                        let imgUrl = `https://static.arasaac.org/pictograms/${pictoId}/${pictoId}_300.png`;
+                        let div = document.createElement('div');
+                        div.style.cssText = "background:white; border:1px solid #ddd; border-radius:8px; padding:4px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center;";
+                        div.innerHTML = `<img src="${imgUrl}" style="width:50px; height:50px; object-fit:contain;" alt="picto">`;
+                        div.onclick = function() {
+                            let select = document.getElementById('arasaac-target-chapter');
+                            let targetChapterId = select ? select.value : 'ch-1';
+                            let targetPage = document.getElementById(targetChapterId);
+                            if(!targetPage) targetPage = document.querySelector('.page.active');
+                            if(!targetPage || !targetPage.querySelector('.grille-p')) { alert("Chapitre cible introuvable."); return; }
+
+                            let nomPicto = prompt("Nom du pictogramme :", query.toUpperCase());
+                            if(!nomPicto) return;
+
+                            targetPage.querySelector('.grille-p').innerHTML += `<div class="picto"><img src="${imgUrl}" onclick="addBarre('${nomPicto.replace(/'/g, "\\'")}',this.src)"><b>${nomPicto.toUpperCase()}</b></div>`;
+                            autoSave(); refreshEdit(); closeModal();
+                            alert(`✅ "${nomPicto.toUpperCase()}" ajouté avec succès !`);
+                        };
+                        container.appendChild(div);
+                    });
+                })
+                .catch(err => { container.innerHTML = `<span style="grid-column:1/-1; text-align:center; color:var(--rouge); font-size:13px; margin-top:20px;">Erreur de connexion.</span>`; });
+        }
+
+        function ajouterPhraseRapide() {
+            openModal("Nouvelle Phrase Rapide", `<input type="text" id="m-val" placeholder="Écrivez votre phrase ici...">`, () => {
+                let texte = document.getElementById('m-val').value.trim();
+                if(texte) {
+                    let liste = document.getElementById('liste-phrases');
+                    let div = document.createElement('div');
+                    div.className = 'btn-phrase-rapide';
+                    div.setAttribute('onclick', `parler("${texte.replace(/"/g, '&quot;')}")`);
+                    div.innerHTML = `<span>${texte}</span><span style="font-size:20px;">🔊</span>`;
+                    liste.appendChild(div);
+                    autoSave(); refreshEdit();
+                }
+            });
+        }
+
+        function addCh() { 
+            let grilleSommaire = document.getElementById('grille-sommaire');
+            if(!grilleSommaire) return;
+            openModal("Nouveau Chapitre", `<input type="text" id="m-val" placeholder="Nom du chapitre">`, () => {
+                let n = document.getElementById('m-val').value;
+                if(n) { 
+                    let id = "ch-" + Date.now(); 
+                    let savedPodd = localStorage.getItem('vokalys_podd_mode') || 'standard';
+                    let palette = (savedPodd === 'podd') ? clsPodd : clsStandard;
+                    let randomColor = palette[Math.floor(Math.random() * palette.length)];
+
+                    grilleSommaire.innerHTML += `<button class="btn-ch" style="background-color:${randomColor};" onclick="go('${id}')"><span>${n.toUpperCase()}</span></button>`; 
+                    document.getElementById('main-content').insertAdjacentHTML('beforeend', `
+                        <div id="${id}" class="page">
+                            <h2><span>${n.toUpperCase()}</span></h2>
+                            <input type="text" class="edit-input-field" value="${n.toUpperCase()}" oninput="modifierTitreDirect(this)">
+                            <div class="grille-p"></div>
+                        </div>
+                    `); 
+                    autoSave(); refreshEdit(); 
+                }
+            });
+        }
+
+        function refreshEdit() { 
+            document.querySelectorAll('.page').forEach(page => {
+                let h2 = page.querySelector('h2');
+                if(h2 && !page.querySelector('.edit-input-field') && h2.querySelector('span')) {
+                    let spanText = h2.querySelector('span').innerText;
+                    let inputField = document.createElement('input');
+                    inputField.type = 'text'; inputField.className = 'edit-input-field';
+                    inputField.value = spanText; inputField.oninput = function() { modifierTitreDirect(this); };
+                    h2.after(inputField);
+                } else if(page.querySelector('.edit-input-field') && h2 && h2.querySelector('span')) {
+                    let inputField = page.querySelector('.edit-input-field');
+                    if(inputField.value !== h2.querySelector('span').innerText) inputField.value = h2.querySelector('span').innerText;
+                }
+            });
+
+            document.querySelectorAll('.btn-ch').forEach(el => {
+                if(!el.querySelector('.ed-tools')) {
+                    el.style.position = 'relative';
+                    let tools = document.createElement('div');
+                    tools.className = 'ed-tools';
+                    tools.innerHTML = `
+                        <div class="ed-btn ed-crayon" title="Modifier le texte" onclick="event.stopPropagation(); editerTexteElement(this.closest('.btn-ch').querySelector('span'))">✎</div>
+                        <div class="ed-btn ed-photo" title="Illustrer par une image" onclick="event.stopPropagation(); preparerPhotoElement(this.closest('.btn-ch'))">📷</div>
+                        <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); supprimerElement(this.closest('.btn-ch'))">×</div>
+                    `;
+                    el.appendChild(tools);
+                }
+            });
+
+            document.querySelectorAll('.page h2').forEach(h2 => {
+                if(!h2.querySelector('.ed-tools') && h2.querySelector('span')) {
+                    h2.style.position = 'relative';
+                    let tools = document.createElement('div');
+                    tools.className = 'ed-tools';
+                    tools.innerHTML = `
+                        <div class="ed-btn ed-crayon" title="Modifier le titre" onclick="event.stopPropagation(); editerTexteElement(this.closest('h2').querySelector('span'))">✎</div>
+                        <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); supprimerPageActive()">×</div>
+                    `;
+                    h2.appendChild(tools);
+                }
+            });
+
+            document.querySelectorAll('.picto').forEach(el => {
+                let tools = el.querySelector('.ed-tools');
+                if(!tools) {
+                    el.style.position = 'relative'; tools = document.createElement('div');
+                    tools.className = 'ed-tools'; el.appendChild(tools);
+                }
+                tools.innerHTML = `
+                    <div class="ed-btn ed-crayon" title="Modifier le texte" onclick="event.stopPropagation(); editerTextePicto(this.closest('.picto'))">✎</div>
+                    <div class="ed-btn ed-photo" title="Modifier l'image" onclick="event.stopPropagation(); preparerPhotoPicto(this.closest('.picto'))">📷</div>
+                    <div class="ed-btn ed-move" title="Ajuster l'image" onclick="event.stopPropagation(); reglerPositionImage(this.closest('.picto').querySelector('img'))">↔</div>
+                    <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); this.closest('.picto').remove(); autoSave();">×</div>
+                `;
+            });
+
+            document.querySelectorAll('.btn-phrase-rapide').forEach(el => {
+                if(!el.querySelector('.ed-tools')) {
+                    el.style.position = 'relative';
+                    let tools = document.createElement('div');
+                    tools.className = 'ed-tools';
+                    tools.innerHTML = `
+                        <div class="ed-btn ed-crayon" title="Modifier la phrase" onclick="event.stopPropagation(); editerTexteElement(this.closest('.btn-phrase-rapide').querySelector('span'))">✎</div>
+                        <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); this.closest('.btn-phrase-rapide').remove(); autoSave();">×</div>
+                    `;
+                    el.appendChild(tools);
+                }
+            });
+        }
+
+        function reglerPositionImage(imgEl) {
+            if(!imgEl) return;
+            let currentFit = imgEl.style.objectFit || 'contain';
+            let nextFit = (currentFit === 'contain') ? 'cover' : 'contain';
+            imgEl.style.objectFit = nextFit;
+            alert(`Affichage d'image : ${nextFit.toUpperCase()}`);
+            autoSave();
+        }
+        
+        function editerTexteElement(target) {
+            if(!target) return;
+            let fields = `<input type="text" id="m-val" value="${target.innerText}">`;
+            openModal("Modifier le texte", fields, () => {
+                let n = document.getElementById('m-val').value;
+                if(n) { 
+                    target.innerText = n.toUpperCase(); 
+                    let page = target.closest('.page');
+                    if(page) {
+                        let inp = page.querySelector('.edit-input-field');
+                        if(inp) inp.value = n.toUpperCase();
+                    }
+                    autoSave(); 
+                }
+            });
+        }
+
+        function editerTextePicto(pictoDiv) {
+            let b = pictoDiv.querySelector('b');
+            if(!b) return;
+            let fields = `<input type="text" id="m-val" value="${b.innerText}">`;
+            openModal("Modifier le nom du picto", fields, () => {
+                let n = document.getElementById('m-val').value;
+                if(n) { 
+                    b.innerText = n.toUpperCase(); 
+                    let img = pictoDiv.querySelector('img');
+                    if(img) img.setAttribute('onclick', `addBarre('${n.replace(/'/g, "\\'")}',this.src)`);
+                    autoSave(); 
+                }
+            });
+        }
+
+        function supprimerElement(el) {
+            if(confirm("Voulez-vous vraiment supprimer cet élément ?")) { el.remove(); autoSave(); }
+        }
+
+        function supprimerPageActive() {
+            if(confirm("Voulez-vous supprimer ce chapitre complet ?")) {
+                let activePage = document.querySelector('.page.active');
+                if(activePage) {
+                    let pageId = activePage.id;
+                    activePage.remove();
+                    document.querySelectorAll(`.btn-ch[onclick*="${pageId}"]`).forEach(btn => btn.remove());
+                    go('sommaire'); autoSave();
+                }
+            }
+        }
+
+        let currentTargetForPhoto = null;
+
+        function preparerPhotoElement(btnCh) {
+            currentTargetForPhoto = btnCh;
+            let fields = `
+                <p style="font-size:13px; color:#555;">Illustrer ce chapitre avec :</p>
+                <button style="width:100%; padding:12px; margin-bottom:10px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="closeModal(); ouvrirRechercheArasaacPourChapitre();">🎨 UN PICTOGRAMME ARASAAC</button>
+                <button style="width:100%; padding:12px; margin-bottom:10px; background:var(--orange); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('img-camera').click(); closeModal();">📷 PRENDRE UNE PHOTO</button>
+                <button style="width:100%; padding:12px; background:var(--violet); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('img-file').click(); closeModal();">🖼️ IMPORTER DE LA GALERIE</button>
+            `;
+            openModal("Illustration du Chapitre", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function ouvrirRechercheArasaacPourChapitre() {
+            let fields = `
+                <p style="font-size:13px; color:#555; margin-bottom:6px;">Rechercher un pictogramme sur Arasaac :</p>
+                <div style="display:flex; gap:6px; margin-bottom:10px;">
+                    <input type="text" id="arasaac-search-input-ch" placeholder="Ex: Maison, école, manger..." style="margin:0; flex:1;" onkeydown="if(event.key==='Enter') executerRechercheArasaacChapitre()">
+                    <button onclick="executerRechercheArasaacChapitre()" style="padding:0 12px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🔍</button>
+                </div>
+                <div id="arasaac-results-container-ch" style="max-height:200px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(70px,1fr)); gap:8px; border:1px solid #ddd; padding:8px; border-radius:8px; background:#f9f9f9; min-height:80px;">
+                    <span style="grid-column:1/-1; text-align:center; color:#888; font-size:13px; margin-top:20px;">Tapez un mot et cliquez sur rechercher...</span>
+                </div>
+            `;
+            openModal("🎨 CHOISIR UN PICTO ARASAAC POUR LE CHAPITRE", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function executerRechercheArasaacChapitre() {
+            let input = document.getElementById('arasaac-search-input-ch');
+            let container = document.getElementById('arasaac-results-container-ch');
+            if(!input || !container) return;
+            let query = input.value.trim();
+            if(!query) { alert("Veuillez entrer un mot clé."); return; }
+
+            container.innerHTML = `<span style="grid-column:1/-1; text-align:center; color:#666; font-size:13px; margin-top:20px;">Recherche en cours...</span>`;
+
+            fetch(`https://api.arasaac.org/v1/pictograms/fr/search/${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(!data || data.length === 0) {
+                        container.innerHTML = `<span style="grid-column:1/-1; text-align:center; color:var(--rouge); font-size:13px; margin-top:20px;">Aucun pictogramme trouvé.</span>`;
+                        return;
+                    }
+                    container.innerHTML = "";
+                    data.slice(0, 30).forEach(item => {
+                        let pictoId = item._id;
+                        let imgUrl = `https://static.arasaac.org/pictograms/${pictoId}/${pictoId}_300.png`;
+                        let div = document.createElement('div');
+                        div.style.cssText = "background:white; border:1px solid #ddd; border-radius:8px; padding:4px; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center;";
+                        div.innerHTML = `<img src="${imgUrl}" style="width:50px; height:50px; object-fit:contain;" alt="picto">`;
+                        div.onclick = function() {
+                            if(currentTargetForPhoto) {
+                                let imgTag = currentTargetForPhoto.querySelector('img');
+                                if(imgTag) {
+                                    imgTag.src = imgUrl;
+                                } else {
+                                    let span = currentTargetForPhoto.querySelector('span');
+                                    let newImg = document.createElement('img');
+                                    newImg.src = imgUrl;
+                                    currentTargetForPhoto.insertBefore(newImg, span);
+                                }
+                                autoSave(); refreshEdit(); closeModal();
+                                alert(`✅ Chapitre illustré avec succès !`);
+                            }
+                        };
+                        container.appendChild(div);
+                    });
+                })
+                .catch(err => { container.innerHTML = `<span style="grid-column:1/-1; text-align:center; color:var(--rouge); font-size:13px; margin-top:20px;">Erreur de connexion.</span>`; });
+        }
+
+        function preparerPhotoPicto(pictoDiv) {
+            currentTargetForPhoto = pictoDiv;
+            let fields = `
+                <p style="font-size:13px; color:#555;">Choisissez l'origine de l'image :</p>
+                <button style="width:100%; padding:12px; margin-bottom:10px; background:var(--orange); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('img-camera').click(); closeModal();">📷 PRENDRE UNE PHOTO</button>
+                <button style="width:100%; padding:12px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('img-file').click(); closeModal();">🖼️ IMPORTER DE LA GALERIE</button>
+            `;
+            openModal("Modifier l'image du picto", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function initClavier() { 
+            const l = ["1234567890", "AZERTYUIOP", "QSDFGHJKLM", "WXCVBN.?,!-@/_"]; 
+            for(let i=0; i<4; i++){
+                let zone = document.getElementById('clav-'+(i+1));
+                if(zone) {
+                    zone.innerHTML = "";
+                    l[i].split('').forEach(x => { zone.innerHTML += `<button class="touche" onclick="taper('${x}')">${x}</button>`; });
+                }
+            } 
+        }
+
+        function setMod(id, s){ 
+            let el=document.getElementById('mod-'+id)||document.getElementById(id); 
+            if(el){ if(s) el.classList.remove('hide-mod'); else el.classList.add('hide-mod'); } 
+            autoSave(); 
+        }
+
+        function alerte(){ 
+            unlockAudio();
+            document.getElementById('flash-screen').style.display='flex'; 
+            parler("Au secours", true);
+            if(siri) clearInterval(siri);
+            siri = setInterval(() => { parler("Au secours", true); }, 2500); 
+        }
+        
+        function stopA(){ 
+            document.getElementById('flash-screen').style.display='none'; 
+            if(siri) clearInterval(siri); 
+            if('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch(e) {} }
+        }
+
+        function resetApp(){ 
+            let fields = `
+                <p style="font-size:14px; color:var(--rouge); font-weight:bold; text-align:center;">⚠️ ATTENTION : Remettre l'application à zéro ?</p>
+                <button style="width:100%; padding:12px; background:var(--rouge); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="confirmerReset()">OUI, EFFACER TOUT</button>
+            `;
+            openModal("Reset Total Tablette", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function confirmerReset() { localStorage.clear(); sessionStorage.clear(); location.reload(true); }
+
+        async function ouvrirMenuExport() {
+            let wasEdit = document.body.classList.contains('edit-mode'); 
+            if(wasEdit) modeEdit(); 
+            document.getElementById('clavier-zone').style.display = 'none'; 
+            
+            let html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML; 
+            let fileName = `VOKALYS_SAUVEGARDE_${new Date().toISOString().slice(0, 10)}.html`;
+
+            // Utilisation de l'API moderne pour choisir directement l'emplacement (Clé USB / Dossier)
+            if ('showDirectoryPicker' in window) {
+                try {
+                    alert("🔌 Branchez votre clé USB.\n\nDans la fenêtre qui va s'ouvrir, sélectionnez votre clé USB (ou le dossier de votre choix) pour y enregistrer la sauvegarde directement.");
+                    const dirHandle = await window.showDirectoryPicker();
+                    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(html);
+                    await writable.close();
+                    alert("✅ Sauvegarde enregistrée directement sur la clé USB avec succès !");
+                    if(wasEdit) modeEdit();
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        if(wasEdit) modeEdit();
+                        return; // Annulé par l'utilisateur
+                    }
+                }
+            }
+
+            // Repli classique (Téléchargement direct si le navigateur ne gère pas le sélecteur de dossier)
+            if (!confirm("Voulez-vous télécharger la sauvegarde sur votre appareil ?")) {
+                if(wasEdit) modeEdit();
+                return;
+            }
+            let b = new Blob([html], {type: 'text/html'}); 
+            let a = document.createElement('a'); 
+            a.href = URL.createObjectURL(b);
+            a.download = fileName; 
+            a.click(); 
+
+            if(wasEdit) modeEdit();
+        }
+
+        function importerSauvegardeGlobale(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        let parser = new DOMParser();
+                        let doc = parser.parseFromString(e.target.result, 'text/html');
+                        let newContent = doc.getElementById('main-content');
+                        if (newContent && newContent.innerHTML.trim() !== '') {
+                            document.getElementById('main-content').innerHTML = newContent.innerHTML;
+                            autoSave(); alert("✅ Sauvegarde importée avec succès !"); location.reload();
+                        } else alert("❌ Fichier non valide.");
+                    } catch (err) { alert("❌ Erreur de lecture."); }
+                    input.value = "";
+                };
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        function ouvrirMenuPhoto() {
+            let activePage = document.querySelector('.page.active');
+            if(!activePage || !activePage.querySelector('.grille-p')) { alert("Ouvrez d'abord un chapitre."); return; }
+            currentTargetForPhoto = null;
+            let fields = `
+                <p style="font-size:13px; color:#555;">Origine de la photo :</p>
+                <button style="width:100%; padding:12px; margin-bottom:10px; background:var(--orange); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('img-camera').click(); closeModal();">📷 PRENDRE UNE PHOTO</button>
+                <button style="width:100%; padding:12px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('img-file').click(); closeModal();">🖼️ IMPORTER DE LA GALERIE</button>
+            `;
+            openModal("Ajouter une Photo", fields, null);
+            document.getElementById('modal-submit').style.display = 'none';
+        }
+
+        function imgCharge(f){ 
+            if(f.files && f.files[0]){ 
+                let r=new FileReader(); 
+                r.onload=e => { 
+                    let resultImage = e.target.result;
+                    if(currentTargetForPhoto) {
+                        let imgTag = currentTargetForPhoto.querySelector('img');
+                        if(imgTag) imgTag.src = resultImage;
+                        else {
+                            let span = currentTargetForPhoto.querySelector('span');
+                            let newImg = document.createElement('img'); newImg.src = resultImage;
+                            currentTargetForPhoto.insertBefore(newImg, span);
+                        }
+                        currentTargetForPhoto = null; autoSave(); refreshEdit();
+                    }
+                }; 
+                r.readAsDataURL(f.files[0]); 
+            } 
+            f.value = "";
+        }
+    </script>
+</body>
+</html>
