@@ -28,7 +28,6 @@ self.addEventListener('activate', (e) => {
 
 // Stratégie : Network First avec fallback sur le cache (permet les MAJ auto)
 self.addEventListener('fetch', (e) => {
-  // Ignorer les requêtes non-GET ou externes (ex: Chrome extensions, API tierces)
   if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
     return;
   }
@@ -46,7 +45,6 @@ self.addEventListener('fetch', (e) => {
         if (cachedResponse) {
           return cachedResponse;
         }
-        // Repli sur index.html si la page demandée hors-ligne n'est pas trouvée
         return caches.match('./index.html');
       }))
   );

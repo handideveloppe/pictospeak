@@ -8,7 +8,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="VOKALYS">
+    <meta name="apple-mobile-web-app-title" content="PictoSpeak">
     
     <style>
         :root { --bg: #F0F2F5; --dark: #2C3E50; --violet: #9b59b6; --orange: #FF9800; --bleu: #2196F3; --vert: #4CAF50; --rouge: #ff4757; --jaune: #f1c40f; --retour: #3498db; }
@@ -16,8 +16,8 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         .hide-mod { display: none !important; }
         .brand { background: white; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 2px solid #ddd; z-index: 10; flex-shrink: 0; }
-        .logo-vokalys { width: 45px; height: 45px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .logo-vokalys svg { width: 100%; height: 100%; object-fit: contain; }
+        .logo-pictospeak { width: 45px; height: 45px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-pictospeak svg { width: 100%; height: 100%; object-fit: contain; }
         .brand h1 { margin: 0; font-size: 24px; color: var(--dark); letter-spacing: 3px; font-weight: 900; }
         
         .barre-phrase { background: white; border-bottom: 1px solid #ddd; padding: 10px; display: flex; align-items: center; gap: 10px; min-height: 85px; z-index: 10; flex-shrink: 0; }
@@ -179,7 +179,7 @@
 
     <div id="license-screen">
         <div class="lic-card">
-            <div class="logo-vokalys">
+            <div class="logo-pictospeak">
                 <svg viewBox="0 0 100 100" width="100%" height="100%">
                     <rect x="12" y="8" width="76" height="84" rx="14" fill="none" stroke="#2575fc" stroke-width="4" opacity="0.25"/>
                     <path d="M 24 68 L 24 82 L 38 70 C 33 69 28 67 24 68 Z" fill="#1d4ed8"/>
@@ -190,9 +190,9 @@
                     <path d="M 69 31 C 75 38 75 54 69 61" fill="none" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
                 </svg>
             </div>
-            <h2 style="margin:0 0 10px 0;">ACTIVER VOKALYS</h2>
+            <h2 style="margin:0 0 10px 0;">ACTIVER PICTOSPEAK</h2>
             <p style="font-size:14px; color:#555; margin:0;">Saisissez votre code de test (24h) ou votre clé de licence définitive.</p>
-            <input type="text" id="lic-input" placeholder="Ex: TEST-MOI ou VOK-..." maxlength="30">
+            <input type="text" id="lic-input" placeholder="Ex: TEST-MOI ou PICTO-..." maxlength="30">
             <button onclick="soumettreLicence()">DÉBLOQUER L'APPLICATION</button>
             
             <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
@@ -212,12 +212,12 @@
     <div id="notice-modal">
         <div class="notice-content-box">
             <div class="notice-header">
-                <h3 style="margin:0;">📖 NOTICE OFFICIELLE VOKALYS</h3>
+                <h3 style="margin:0;">📖 NOTICE OFFICIELLE PICTOSPEAK</h3>
                 <button onclick="fermerNotice()" style="background:var(--rouge); color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">×</button>
             </div>
             <div class="notice-body" id="notice-text-content">
                 <h2 style="color:var(--dark); margin-top:0;">Guide d'utilisation et Rôle des Boutons</h2>
-                <p><b>Vokalys</b> est une application d'aide à la communication (AAC) et de repérage temporel conçue pour les enfants, adolescents et adultes en situation de handicap ou de trouble de la parole.</p>
+                <p><b>PictoSpeak</b> est une application d'aide à la communication (AAC) et de repérage temporel conçue pour les enfants, adolescents et adultes en situation de handicap ou de trouble de la parole.</p>
                 
                 <h3>1. Le Bandeau Supérieur</h3>
                 <ul>
@@ -275,7 +275,7 @@
     </div>
 
     <div class="brand">
-        <div class="logo-vokalys">
+        <div class="logo-pictospeak">
             <svg viewBox="0 0 100 100" width="100%" height="100%">
                 <rect x="12" y="8" width="76" height="84" rx="14" fill="none" stroke="#2575fc" stroke-width="4" opacity="0.25"/>
                 <path d="M 24 68 L 24 82 L 38 70 C 33 69 28 67 24 68 Z" fill="#1d4ed8"/>
@@ -286,7 +286,7 @@
                 <path d="M 69 31 C 75 38 75 54 69 61" fill="none" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
             </svg>
         </div>
-        <h1>VOKALYS</h1>
+        <h1>PictoSpeak</h1>
     </div>
     <div class="barre-phrase">
         <div id="zone-mots"></div>
@@ -362,7 +362,7 @@
         <div id="p-contact" class="page">
             <h2>✉ CONTACT, SUGGESTIONS &amp; SUPPORT</h2>
             <div class="reglage-item">
-                <p style="font-size:13px; color:#555; margin-top:0;">Une question ou une idée ? Envoyez-nous un message à <br><b>vokalys@proton.me</b></p>
+                <p style="font-size:13px; color:#555; margin-top:0;">Une question ou une idée ? Envoyez-nous un message à <br><b>handideveloppe@proton.me</b></p>
                 <div class="slider-row">
                     <label for="contact-sujet">Sujet / Objet :</label>
                     <input type="text" id="contact-sujet" placeholder="Ex: Suggestion">
@@ -386,7 +386,7 @@
                 <div class="slider-row">
                     <label for="podd-mode-select">Palette de couleurs des chapitres :</label>
                     <select id="podd-mode-select" onchange="changerPalettePodd(this.value)">
-                        <option value="standard">Palette Standard Vokalys</option>
+                        <option value="standard">Palette Standard PictoSpeak</option>
                         <option value="podd">Norme CAA / PODD (Officielle)</option>
                     </select>
                 </div>
@@ -519,7 +519,7 @@
             verifierLicenceAuDemarrage();
             verifierVersionStockee();
 
-            const saved = localStorage.getItem('vokalys_data');
+            const saved = localStorage.getItem('pictospeak_data');
             if (saved) document.getElementById('main-content').innerHTML = saved; 
             else generateStructure(); 
             
@@ -533,18 +533,18 @@
             loadVoiceSettings();
             loadFlashSettings();
             
-            bipModeActive = localStorage.getItem('vokalys_bip_mode') === 'true';
+            bipModeActive = localStorage.getItem('pictospeak_bip_mode') === 'true';
             let chkBip = document.getElementById('chk-bip-mode');
             if(chkBip) chkBip.checked = bipModeActive;
 
-            let myopeActive = localStorage.getItem('vokalys_mode_myope') === 'true';
+            let myopeActive = localStorage.getItem('pictospeak_mode_myope') === 'true';
             if(myopeActive) {
                 document.body.classList.add('mode-myope');
                 let chkMyope = document.getElementById('chk-mode-myope');
                 if(chkMyope) chkMyope.checked = true;
             }
 
-            let savedPodd = localStorage.getItem('vokalys_podd_mode') || 'standard';
+            let savedPodd = localStorage.getItem('pictospeak_podd_mode') || 'standard';
             let poddSelect = document.getElementById('podd-mode-select');
             if(poddSelect) poddSelect.value = savedPodd;
 
@@ -559,7 +559,7 @@
         function imprimerNotice() {
             let contenu = document.getElementById('notice-text-content').innerHTML;
             let fenetre = window.open('', '', 'height=600,width=800');
-            fenetre.document.write('<html><head><title>Notice Vokalys</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>');
+            fenetre.document.write('<html><head><title>Notice PictoSpeak</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>');
             fenetre.document.close();
             fenetre.focus();
             fenetre.print();
@@ -567,16 +567,16 @@
 
         function telechargerNoticePDF() {
             let contenu = document.getElementById('notice-text-content').innerHTML;
-            let blob = new Blob(['<!DOCTYPE html><html><head><meta charset="utf-8"><title>Notice Vokalys</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>'], {type: 'text/html'});
+            let blob = new Blob(['<!DOCTYPE html><html><head><meta charset="utf-8"><title>Notice PictoSpeak</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>'], {type: 'text/html'});
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'NOTICE_VOKALYS.html';
+            a.download = 'NOTICE_PICTOSPEAK.html';
             a.click();
             alert("✅ Notice téléchargée ! Vous pouvez l'ouvrir dans un navigateur ou l'imprimer en PDF.");
         }
 
         function changerPalettePodd(val) {
-            localStorage.setItem('vokalys_podd_mode', val);
+            localStorage.setItem('pictospeak_podd_mode', val);
             let palette = (val === 'podd') ? clsPodd : clsStandard;
             let boutonsChapitres = document.querySelectorAll('#grille-sommaire .btn-ch');
             boutonsChapitres.forEach((btn, index) => {
@@ -609,7 +609,7 @@
             if(icon) icon.innerText = symbol;
             if(descEl) descEl.innerText = desc;
 
-            let eventsKey = `vokalys_events_${annee}_${moisIdx}`;
+            let eventsKey = `pictospeak_events_${annee}_${moisIdx}`;
             let eventsMap = JSON.parse(localStorage.getItem(eventsKey) || "{}");
 
             let listeEvenementsVocaux = [];
@@ -698,12 +698,12 @@
         function validerFormatCle(cle) {
             if (!cle) return false;
             let code = cle.trim().toUpperCase();
-            if (code === "VOKALYS2026" || code === "1234") return true;
-            return code.startsWith("VOK-") && code.length >= 6;
+            if (code === "PICTOSPEAK2026" || code === "1234") return true;
+            return code.startsWith("PICTO-") && code.length >= 6;
         }
 
         function verifierLicenceAuDemarrage() {
-            let cleStockee = localStorage.getItem('vokalys_licence_key');
+            let cleStockee = localStorage.getItem('pictospeak_licence_key');
             let screenLic = document.getElementById('license-screen');
             let lblLic = document.getElementById('lbl-licence-active');
 
@@ -713,7 +713,7 @@
             }
 
             if (cleStockee.startsWith("TEST-")) {
-                let premiereFois = localStorage.getItem('vokalys_date_test_' + cleStockee);
+                let premiereFois = localStorage.getItem('pictospeak_date_test_' + cleStockee);
                 let maintenant = new Date().getTime();
                 if (premiereFois && (maintenant - parseInt(premiereFois) > 24 * 60 * 60 * 1000)) {
                     if(screenLic) screenLic.style.display = 'flex';
@@ -738,13 +738,13 @@
             let cleSaisie = input.value.trim().toUpperCase();
 
             if (cleSaisie.startsWith("TEST-")) {
-                let premiereFois = localStorage.getItem('vokalys_date_test_' + cleSaisie);
-                if (!premiereFois) localStorage.setItem('vokalys_date_test_' + cleSaisie, new Date().getTime());
-                localStorage.setItem('vokalys_licence_key', cleSaisie);
+                let premiereFois = localStorage.getItem('pictospeak_date_test_' + cleSaisie);
+                if (!premiereFois) localStorage.setItem('pictospeak_date_test_' + cleSaisie, new Date().getTime());
+                localStorage.setItem('pictospeak_licence_key', cleSaisie);
                 if(err) err.style.display = 'none';
                 verifierLicenceAuDemarrage();
             } else if (validerFormatCle(cleSaisie)) {
-                localStorage.setItem('vokalys_licence_key', cleSaisie);
+                localStorage.setItem('pictospeak_licence_key', cleSaisie);
                 if(err) err.style.display = 'none';
                 verifierLicenceAuDemarrage();
             } else {
@@ -754,7 +754,7 @@
 
         function deconnecterLicence() {
             if (confirm("Voulez-vous désactiver la licence sur cet appareil ?")) {
-                localStorage.removeItem('vokalys_licence_key');
+                localStorage.removeItem('pictospeak_licence_key');
                 verifierLicenceAuDemarrage();
             }
         }
@@ -774,13 +774,13 @@
         }
 
         function toggleModeMyope(val) {
-            if(val) { document.body.classList.add('mode-myope'); localStorage.setItem('vokalys_mode_myope', 'true'); }
-            else { document.body.classList.remove('mode-myope'); localStorage.setItem('vokalys_mode_myope', 'false'); }
+            if(val) { document.body.classList.add('mode-myope'); localStorage.setItem('pictospeak_mode_myope', 'true'); }
+            else { document.body.classList.remove('mode-myope'); localStorage.setItem('pictospeak_mode_myope', 'false'); }
         }
 
         function verifierVersionStockee() {
-            let derniereVersionConnue = localStorage.getItem('vokalys_app_version');
-            if (!derniereVersionConnue) localStorage.setItem('vokalys_app_version', APP_VERSION);
+            let derniereVersionConnue = localStorage.getItem('pictospeak_app_version');
+            if (!derniereVersionConnue) localStorage.setItem('pictospeak_app_version', APP_VERSION);
             else if (derniereVersionConnue !== APP_VERSION) afficherBandeauMaj();
         }
 
@@ -791,7 +791,7 @@
 
         function forcerMiseAJour() {
             if (confirm("Voulez-vous actualiser l'application avec la dernière version ?")) {
-                localStorage.setItem('vokalys_app_version', APP_VERSION);
+                localStorage.setItem('pictospeak_app_version', APP_VERSION);
                 if ('caches' in window) caches.keys().then(names => names.forEach(name => caches.delete(name)));
                 if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
                 setTimeout(() => { window.location.href = window.location.href.split('?')[0] + '?v=' + Date.now(); }, 300);
@@ -804,7 +804,7 @@
             let sujet = sujetInput ? sujetInput.value.trim() : "";
             let message = messageInput ? messageInput.value.trim() : "";
             if(!sujet && !message) { alert("Veuillez remplir au moins l'objet ou le message."); return; }
-            window.location.href = `mailto:vokalys@proton.me?subject=${encodeURIComponent(sujet || "Support Vokalys")}&body=${encodeURIComponent(message)}`;
+            window.location.href = `mailto:handideveloppe@proton.me?subject=${encodeURIComponent(sujet || "Support PictoSpeak")}&body=${encodeURIComponent(message)}`;
         }
 
         function jouerBipSecours() {
@@ -819,7 +819,7 @@
             } catch(e) {}
         }
 
-        function toggleBipMode(val) { bipModeActive = val; localStorage.setItem('vokalys_bip_mode', val); }
+        function toggleBipMode(val) { bipModeActive = val; localStorage.setItem('pictospeak_bip_mode', val); }
 
         function agrandirPicto(src, nom) {
             let modal = document.getElementById('zoom-modal');
@@ -857,7 +857,7 @@
                     opt.value = index; opt.innerText = `${v.name} (${v.lang})`;
                     select.appendChild(opt);
                 });
-                let savedVoice = localStorage.getItem('vokalys_voice');
+                let savedVoice = localStorage.getItem('pictospeak_voice');
                 if(savedVoice !== null && voicesList[savedVoice]) select.value = savedVoice;
                 else if (currentVal !== "") select.value = currentVal;
             } catch(e) {}
@@ -872,14 +872,14 @@
         }
 
         function saveVoiceSettings() {
-            localStorage.setItem('vokalys_voice', document.getElementById('voice-select').value);
-            localStorage.setItem('vokalys_rate', document.getElementById('rate-range').value);
-            localStorage.setItem('vokalys_vol', document.getElementById('vol-range').value);
+            localStorage.setItem('pictospeak_voice', document.getElementById('voice-select').value);
+            localStorage.setItem('pictospeak_rate', document.getElementById('rate-range').value);
+            localStorage.setItem('pictospeak_vol', document.getElementById('vol-range').value);
         }
 
         function loadVoiceSettings() {
-            let rate = localStorage.getItem('vokalys_rate') || "1.0";
-            let vol = localStorage.getItem('vokalys_vol') || "1.0";
+            let rate = localStorage.getItem('pictospeak_rate') || "1.0";
+            let vol = localStorage.getItem('pictospeak_vol') || "1.0";
             document.getElementById('rate-range').value = rate;
             document.getElementById('vol-range').value = vol;
             document.getElementById('rate-val').innerText = rate;
@@ -888,12 +888,12 @@
 
         function saveFlashSettings() {
             let style = document.getElementById('flash-style').value;
-            localStorage.setItem('vokalys_flash', style);
+            localStorage.setItem('pictospeak_flash', style);
             applyFlashStyle(style);
         }
 
         function loadFlashSettings() {
-            let style = localStorage.getItem('vokalys_flash') || "rapide";
+            let style = localStorage.getItem('pictospeak_flash') || "rapide";
             let select = document.getElementById('flash-style');
             if(select) select.value = style;
             applyFlashStyle(style);
@@ -909,7 +909,7 @@
         }
 
         function autoSave() { 
-            localStorage.setItem('vokalys_data', document.getElementById('main-content').innerHTML); 
+            localStorage.setItem('pictospeak_data', document.getElementById('main-content').innerHTML); 
             attacherEvenementsZoom();
             refreshEdit();
         }
@@ -925,7 +925,7 @@
 
         function generateStructure() {
             let grilleSommaire = document.getElementById('grille-sommaire');
-            let savedPodd = localStorage.getItem('vokalys_podd_mode') || 'standard';
+            let savedPodd = localStorage.getItem('pictospeak_podd_mode') || 'standard';
             let palette = (savedPodd === 'podd') ? clsPodd : clsStandard;
 
             if(grilleSommaire) {
@@ -1010,10 +1010,10 @@
 
                 let m = new SpeechSynthesisUtterance(texteAjuste); 
                 m.lang = 'fr-FR'; 
-                let savedVoiceIdx = localStorage.getItem('vokalys_voice');
+                let savedVoiceIdx = localStorage.getItem('pictospeak_voice');
                 if(savedVoiceIdx !== null && typeof voicesList !== 'undefined' && voicesList[savedVoiceIdx]) m.voice = voicesList[savedVoiceIdx];
-                m.rate = parseFloat(localStorage.getItem('vokalys_rate') || 1.0);
-                m.volume = maxVolume ? 1.0 : parseFloat(localStorage.getItem('vokalys_vol') || 1.0);
+                m.rate = parseFloat(localStorage.getItem('pictospeak_rate') || 1.0);
+                m.volume = maxVolume ? 1.0 : parseFloat(localStorage.getItem('pictospeak_vol') || 1.0);
                 window.speechSynthesis.speak(m);
             } catch(e) {}
         }
@@ -1181,7 +1181,7 @@
                 let n = document.getElementById('m-val').value;
                 if(n) { 
                     let id = "ch-" + Date.now(); 
-                    let savedPodd = localStorage.getItem('vokalys_podd_mode') || 'standard';
+                    let savedPodd = localStorage.getItem('pictospeak_podd_mode') || 'standard';
                     let palette = (savedPodd === 'podd') ? clsPodd : clsStandard;
                     let randomColor = palette[Math.floor(Math.random() * palette.length)];
 
@@ -1457,9 +1457,8 @@
             document.getElementById('clavier-zone').style.display = 'none'; 
             
             let html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML; 
-            let fileName = `VOKALYS_SAUVEGARDE_${new Date().toISOString().slice(0, 10)}.html`;
+            let fileName = `PICTOSPEAK_SAUVEGARDE_${new Date().toISOString().slice(0, 10)}.html`;
 
-            // Utilisation de l'API moderne pour choisir directement l'emplacement (Clé USB / Dossier)
             if ('showDirectoryPicker' in window) {
                 try {
                     alert("🔌 Branchez votre clé USB.\n\nDans la fenêtre qui va s'ouvrir, sélectionnez votre clé USB (ou le dossier de votre choix) pour y enregistrer la sauvegarde directement.");
@@ -1474,12 +1473,11 @@
                 } catch (err) {
                     if (err.name === 'AbortError') {
                         if(wasEdit) modeEdit();
-                        return; // Annulé par l'utilisateur
+                        return;
                     }
                 }
             }
 
-            // Repli classique (Téléchargement direct si le navigateur ne gère pas le sélecteur de dossier)
             if (!confirm("Voulez-vous télécharger la sauvegarde sur votre appareil ?")) {
                 if(wasEdit) modeEdit();
                 return;
