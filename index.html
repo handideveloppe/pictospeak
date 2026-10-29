@@ -114,9 +114,10 @@
         body.show-podd-indicators .podd-page-header { display: flex; }
         .podd-tab-badge { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; background: var(--dark); text-transform: uppercase; }
 
-        .grille-p { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 10px; }
-        .picto { background: white; padding: 8px; border-radius: 15px; position: relative; border: 2px solid #ddd; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; transition: border-color 0.3s ease, opacity 0.3s ease; }
-        .picto img { width: 100%; height: 90px; object-fit: contain; background: #fff; cursor: pointer; transition: transform 0.2s ease; }
+        /* Taille des grilles de pictogrammes agrandie de ~12% et centrée */
+        .grille-p { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 12px; justify-content: center; justify-items: center; }
+        .picto { background: white; padding: 8px; border-radius: 15px; position: relative; border: 2px solid #ddd; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; transition: border-color 0.3s ease, opacity 0.3s ease; width: 100%; max-width: 155px; }
+        .picto img { width: 100%; height: 105px; object-fit: contain; background: #fff; cursor: pointer; transition: transform 0.2s ease; }
         .picto b { display: block; margin-top: 5px; font-size: 12px; text-transform: uppercase; word-break: break-word; padding: 2px 4px; border-radius: 4px; width: 100%; }
         
         /* Animation du Suivi Oculaire / Dwell Time */
@@ -165,16 +166,15 @@
         body.podd-active .picto[data-podd="gris"] { border-color: var(--podd-gris); }
         body.podd-active .picto[data-podd="gris"] b { background: var(--podd-gris); color: #fff; }
 
-        body.edit-mode .picto img { cursor: grab; transform: scale(1.1); }
-        body.edit-mode .picto img:active { cursor: grabbing; }
+        body.edit-mode .picto img { transform: scale(1.05); }
 
         .grille-phrases { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         .btn-phrase-rapide { background: white; border: 2px solid var(--violet); border-radius: 15px; padding: 18px 15px; font-size: 16px; font-weight: bold; color: var(--dark); text-align: left; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
 
-        body.mode-myope .picto img { height: 140px; }
+        body.mode-myope .picto img { height: 160px; }
         body.mode-myope .picto b { font-size: 16px; }
-        body.mode-myope .grille-p { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 15px; }
-        body.mode-myope .btn-ch { min-height: 180px; font-size: 1.2rem; }
+        body.mode-myope .grille-p { grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 15px; }
+        body.mode-myope .btn-ch { min-height: 190px; font-size: 1.2rem; }
 
         .reglage-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ddd; }
         .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
@@ -197,13 +197,13 @@
         .clignoter-fixe { background: red !important; }
         @keyframes flash { 0% { background: red; } 50% { background: white; } 100% { background: red; } }
         
-        .ed-tools { display: none; position: absolute; top: 5px; right: 5px; z-index: 50; gap: 4px; pointer-events: auto; }
+        /* Outils d'édition compacts sur 2 colonnes bien visibles (avec l'œil 👁️ de masquage) */
+        .ed-tools { display: none; position: absolute; top: 5px; right: 5px; z-index: 50; gap: 3px; pointer-events: auto; max-width: 60px; flex-wrap: wrap; justify-content: flex-end; }
         body.edit-mode .ed-tools { display: flex !important; }
-        .ed-btn { width: 26px; height: 26px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid white; font-size: 11px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .ed-btn { width: 25px; height: 25px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid white; font-size: 10px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .ed-crayon { background: var(--bleu); }
         .ed-photo { background: var(--orange); }
         .ed-del { background: var(--rouge); }
-        .ed-move { background: var(--violet); }
         .ed-mask { background: var(--dark); }
         .ed-syntax { background: var(--jaune); color: black; }
 
@@ -297,7 +297,7 @@
                 
                 <h3>1. Adaptations Visuelles &amp; Cliniques CAA / PODD</h3>
                 <ul>
-                    <li><b>🎨 Code Couleur Persistant (Norme PODD) :</b> Applique les conventions de couleurs canoniques par catégorie grammaticale pour structurer la pensée et le repérage :
+                    <li><b>🎨 Code Couleur Persistant (Norme PODD) :</b> Applique les conventions de couleurs canoniques par catégorie grammaticale :
                         <br>• 🟡 <b>Jaune :</b> Pronoms, personnes &amp; identité
                         <br>• 🟢 <b>Vert :</b> Verbes &amp; actions
                         <br>• 🟠 <b>Orange :</b> Besoins immédiats, objets &amp; activités
@@ -599,7 +599,7 @@
 
             <h2>🔄 MISE À JOUR SYSTÈME</h2>
             <div class="reglage-item">
-                <p style="font-size:13px; color:#555; margin-top:0;">Version actuelle du code : <b id="lbl-version">2026.24</b></p>
+                <p style="font-size:13px; color:#555; margin-top:0;">Version actuelle du code : <b id="lbl-version">2026.25</b></p>
             </div>
 
             <h2>💾 SAUVEGARDE ET RESTAURATION GLOBALE</h2>
@@ -643,7 +643,7 @@
     <input type="file" id="import-global-file" style="display:none" accept=".html" onchange="importerSauvegardeGlobale(this)">
 
     <script>
-        const APP_VERSION = "2026.24";
+        const APP_VERSION = "2026.25";
 
         let siri, hist = ['sommaire'], voicesList = [], audioUnlocked = false, bipModeActive = false;
         let dwellActive = false, dwellTimer = null, dwellCurrentTarget = null, dwellDelaySec = 1.2;
@@ -1593,7 +1593,6 @@
                     <div class="ed-btn ed-syntax" title="Marqueur de syntaxe" onclick="event.stopPropagation(); gererSyntaxePicto(this.closest('.picto'))">⏱</div>
                     <div class="ed-btn ed-crayon" title="Modifier le texte" onclick="event.stopPropagation(); editerTextePicto(this.closest('.picto'))">✎</div>
                     <div class="ed-btn ed-photo" title="Modifier l'image" onclick="event.stopPropagation(); preparerPhotoPicto(this.closest('.picto'))">📷</div>
-                    <div class="ed-btn ed-move" title="Ajuster l'image" onclick="event.stopPropagation(); reglerPositionImage(this.closest('.picto').querySelector('img'))">↔</div>
                     <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); this.closest('.picto').remove(); autoSave();">×</div>
                 `;
             });
@@ -1612,15 +1611,6 @@
                 `;
             });
             initDwellListeners();
-        }
-
-        function reglerPositionImage(imgEl) {
-            if(!imgEl) return;
-            let currentFit = imgEl.style.objectFit || 'contain';
-            let nextFit = (currentFit === 'contain') ? 'cover' : 'contain';
-            imgEl.style.objectFit = nextFit;
-            alert(`Affichage d'image : ${nextFit.toUpperCase()}`);
-            autoSave();
         }
         
         function editerTexteElement(target) {
