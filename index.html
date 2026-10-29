@@ -177,6 +177,7 @@
 </head>
 <body onload="init()" onclick="unlockAudio()" ontouchstart="unlockAudio()">
 
+    <!-- ÉCRAN D'ACTIVATION / LICENCE AVEC BOUTON NOTICE INTÉGRÉ -->
     <div id="license-screen">
         <div class="lic-card">
             <div class="logo-pictospeak">
@@ -193,6 +194,10 @@
             <h2 style="margin:0 0 10px 0;">ACTIVER PICTOSPEAK</h2>
             <p style="font-size:14px; color:#555; margin:0;">Saisissez votre code de test (24h) ou votre clé de licence définitive.</p>
             <input type="text" id="lic-input" placeholder="Ex: TEST-MOI ou PICTO-..." maxlength="30">
+            
+            <!-- Bouton notice intégré ici -->
+            <button onclick="ouvrirNotice()" style="width:100%; padding:14px; background:var(--bleu); color:white; border:none; border-radius:10px; font-size:15px; font-weight:bold; cursor:pointer; margin-bottom:10px;">📖 LIRE / IMPRIMER LA NOTICE</button>
+            
             <button onclick="soumettreLicence()">DÉBLOQUER L'APPLICATION</button>
             
             <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
@@ -376,11 +381,6 @@
         </div>
 
         <div id="p-opts" class="page">
-            <h2>📖 DOCUMENTATION</h2>
-            <div class="reglage-item">
-                <button class="btn-f" style="background:var(--bleu); width:100%; padding:15px; font-size:14px; margin-bottom:5px;" onclick="ouvrirNotice()">📖 LIRE LA NOTICE / MODE D'EMPLOI</button>
-            </div>
-
             <h2>🎨 CODE COULEUR CAA / PODD</h2>
             <div class="reglage-item">
                 <div class="slider-row">
