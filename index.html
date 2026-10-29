@@ -11,7 +11,25 @@
     <meta name="apple-mobile-web-app-title" content="PictoSpeak">
     
     <style>
-        :root { --bg: #F0F2F5; --dark: #2C3E50; --violet: #9b59b6; --orange: #FF9800; --bleu: #2196F3; --vert: #4CAF50; --rouge: #ff4757; --jaune: #f1c40f; --retour: #3498db; }
+        :root { 
+            --bg: #F0F2F5; 
+            --dark: #2C3E50; 
+            --violet: #9b59b6; 
+            --orange: #FF9800; 
+            --bleu: #2196F3; 
+            --vert: #4CAF50; 
+            --rouge: #ff4757; 
+            --jaune: #f1c40f; 
+            --retour: #3498db; 
+            
+            /* Couleurs Persistantes PODD */
+            --podd-jaune: #f1c40f;   /* Pronoms / Identité */
+            --podd-vert: #27ae60;    /* Verbes / Actions */
+            --podd-orange: #d35400;  /* Besoins / Objets */
+            --podd-bleu: #2980b9;    /* Émotions / Sentiments */
+            --podd-rose: #e84393;    /* Social / Phrases */
+            --podd-gris: #7f8c8d;    /* Lieux / Invariants */
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         .hide-mod { display: none !important; }
@@ -66,6 +84,7 @@
             background-color: var(--dark); 
             overflow: hidden;
             padding: 10px;
+            transition: border 0.3s ease;
         }
         .btn-ch img {
             position: absolute;
@@ -90,11 +109,62 @@
             word-break: break-word;
         }
         
+        /* Balisage & Indicateur de Page PODD */
+        .podd-page-header { display: none; background: #fff; border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; border-left: 8px solid var(--bleu); align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+        body.show-podd-indicators .podd-page-header { display: flex; }
+        .podd-tab-badge { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; background: var(--dark); text-transform: uppercase; }
+
         .grille-p { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 10px; }
-        .picto { background: white; padding: 8px; border-radius: 15px; position: relative; border: 1px solid #ddd; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
+        .picto { background: white; padding: 8px; border-radius: 15px; position: relative; border: 2px solid #ddd; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; transition: border-color 0.3s ease, opacity 0.3s ease; }
         .picto img { width: 100%; height: 90px; object-fit: contain; background: #fff; cursor: pointer; transition: transform 0.2s ease; }
-        .picto b { display: block; margin-top: 5px; font-size: 12px; text-transform: uppercase; word-break: break-word; }
+        .picto b { display: block; margin-top: 5px; font-size: 12px; text-transform: uppercase; word-break: break-word; padding: 2px 4px; border-radius: 4px; width: 100%; }
         
+        /* Animation du Suivi Oculaire / Dwell Time */
+        .dwell-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 15px;
+            pointer-events: none;
+            box-sizing: border-box;
+            border: 4px solid var(--bleu);
+            opacity: 0;
+            z-index: 20;
+        }
+        .dwelling .dwell-overlay {
+            opacity: 1;
+            animation: dwellAnimation var(--dwell-delay, 1.2s) linear forwards;
+        }
+        @keyframes dwellAnimation {
+            0% { clip-path: polygon(50% 50%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%); background: rgba(33, 150, 243, 0.1); }
+            25% { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%); }
+            50% { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%); }
+            75% { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 100%); }
+            100% { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%); background: rgba(33, 150, 243, 0.35); }
+        }
+
+        /* Badges de Syntaxe Visuelle */
+        .syntax-badge { display: none; position: absolute; top: 5px; left: 5px; background: var(--dark); color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 6px; z-index: 5; }
+        body.show-syntax .syntax-badge { display: block; }
+
+        /* Masquage de Vocabulaire */
+        .picto.masked { opacity: 0.2; pointer-events: none; }
+        body.edit-mode .picto.masked { opacity: 0.6; pointer-events: auto; }
+        body.hide-masked .picto.masked { display: none !important; }
+
+        /* Code Couleur Persistant PODD */
+        body.podd-active .picto[data-podd="jaune"] { border-color: var(--podd-jaune); }
+        body.podd-active .picto[data-podd="jaune"] b { background: var(--podd-jaune); color: #000; }
+        body.podd-active .picto[data-podd="vert"] { border-color: var(--podd-vert); }
+        body.podd-active .picto[data-podd="vert"] b { background: var(--podd-vert); color: #fff; }
+        body.podd-active .picto[data-podd="orange"] { border-color: var(--podd-orange); }
+        body.podd-active .picto[data-podd="orange"] b { background: var(--podd-orange); color: #fff; }
+        body.podd-active .picto[data-podd="bleu"] { border-color: var(--podd-bleu); }
+        body.podd-active .picto[data-podd="bleu"] b { background: var(--podd-bleu); color: #fff; }
+        body.podd-active .picto[data-podd="rose"] { border-color: var(--podd-rose); }
+        body.podd-active .picto[data-podd="rose"] b { background: var(--podd-rose); color: #fff; }
+        body.podd-active .picto[data-podd="gris"] { border-color: var(--podd-gris); }
+        body.podd-active .picto[data-podd="gris"] b { background: var(--podd-gris); color: #fff; }
+
         body.edit-mode .picto img { cursor: grab; transform: scale(1.1); }
         body.edit-mode .picto img:active { cursor: grabbing; }
 
@@ -134,6 +204,8 @@
         .ed-photo { background: var(--orange); }
         .ed-del { background: var(--rouge); }
         .ed-move { background: var(--violet); }
+        .ed-mask { background: var(--dark); }
+        .ed-syntax { background: var(--jaune); color: black; }
 
         .edit-input-field { display: none; width: 100%; padding: 8px; font-size: 16px; font-weight: bold; border: 2px dashed var(--bleu); border-radius: 8px; margin-bottom: 10px; background: #fff; }
         body.edit-mode .edit-input-field { display: block; }
@@ -195,7 +267,6 @@
             <p style="font-size:14px; color:#555; margin:0;">Saisissez votre code de test (24h) ou votre clé de licence définitive.</p>
             <input type="text" id="lic-input" placeholder="Ex: TEST-MOI ou PICTO-..." maxlength="30">
             
-            <!-- Bouton notice intégré ici -->
             <button onclick="ouvrirNotice()" style="width:100%; padding:14px; background:var(--bleu); color:white; border:none; border-radius:10px; font-size:15px; font-weight:bold; cursor:pointer; margin-bottom:10px;">📖 LIRE / IMPRIMER LA NOTICE</button>
             
             <button onclick="soumettreLicence()">DÉBLOQUER L'APPLICATION</button>
@@ -221,33 +292,55 @@
                 <button onclick="fermerNotice()" style="background:var(--rouge); color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">×</button>
             </div>
             <div class="notice-body" id="notice-text-content">
-                <h2 style="color:var(--dark); margin-top:0;">Guide d'utilisation et Rôle des Boutons</h2>
+                <h2 style="color:var(--dark); margin-top:0;">Guide d'utilisation et Adaptations CAA / PODD</h2>
                 <p><b>PictoSpeak</b> est une application d'aide à la communication (AAC) et de repérage temporel conçue pour les enfants, adolescents et adultes en situation de handicap ou de trouble de la parole.</p>
                 
-                <h3>1. Le Bandeau Supérieur</h3>
+                <h3>1. Adaptations Visuelles &amp; Cliniques CAA / PODD</h3>
                 <ul>
-                    <li><b>⬅️ RETOUR :</b> Permet de revenir à la page ou au niveau précédent (historique de navigation).</li>
-                    <li><b>📅 CALENDRIER :</b> Affiche le calendrier visuel du mois avec repérage saisonnier et <b>vos événements personnalisés</b> (rendez-vous, anniversaires, vacances).</li>
-                    <li><b>🔍 GOOGLE :</b> Ouvre un accès direct à la recherche d'images pour illustrer vos pictogrammes.</li>
-                    <li><b>✉ CONTACT :</b> Permet d'envoyer un message de support ou une suggestion par email.</li>
-                    <li><b>⚙ RÉGLAGES :</b> Accède aux options de synthèse vocale, accessibilité, code couleur CAA/PODD et lecture de cette notice.</li>
-                    <li><b>💾 EXPORT :</b> Sauvegarde complète de vos données et chapitres directement sur clé USB ou stockage local.</li>
+                    <li><b>🎨 Code Couleur Persistant (Norme PODD) :</b> Applique les conventions de couleurs canoniques par catégorie grammaticale pour structurer la pensée et le repérage :
+                        <br>• 🟡 <b>Jaune :</b> Pronoms, personnes &amp; identité
+                        <br>• 🟢 <b>Vert :</b> Verbes &amp; actions
+                        <br>• 🟠 <b>Orange :</b> Besoins immédiats, objets &amp; activités
+                        <br>• 🔵 <b>Bleu :</b> Émotions &amp; sentiments
+                        <br>• 🟣 <b>Rose :</b> Social &amp; phrases
+                        <br>• ⚫ <b>Gris :</b> Lieux &amp; mots invariables
+                    </li>
+                    <li><b>🏷️ Balisage &amp; Indicateurs de Page :</b> Affiche en haut de chaque chapitre un bandeau-onglet dynamique indiquant le domaine actif et son index pour sécuriser le repérage spatial.</li>
+                    <li><b>🙈 Masquage de Vocabulaire (Hide &amp; Show) :</b> Permet aux aidants ou thérapeutes de masquer temporairement des pictogrammes (icône 👁️ en mode EDIT) afin d'éviter la surcharge cognitive.</li>
+                    <li><b>⏱️ Indicateur de Syntaxe Visuelle :</b> Possibilité de marquer le temps (*Passé / Présent / Futur*) ou la tournure (*Négation / Question*) sur les éléments pour structurer la grammaire.</li>
+                    <li><b>👁️ Sélection au Regard &amp; Alternatives Économiques (Dwell Time) :</b> PictoSpeak intègre un mode de validation par temps de fixation (*Dwell Time*) compatible avec :
+                        <br>• Les <b>barres de suivi oculaire professionnelles</b> (Tobii, Irisbond...)
+                        <br>• <b>Sur Android :</b> L'application gratuite <i>EVA Facial Mouse</i> (Google Play).
+                        <br>• <b>Sur iOS (iPhone/iPad) :</b> La fonction native <i>Suivi de tête</i> (Réglages > Accessibilité > Suivi de tête).
+                        <br>• <b>Sur PC (Windows) :</b> Les logiciels gratuits <i>Camera Mouse</i> ou <i>Enable Viacam (eViacam)</i>.
+                        <br>Dès que le curseur se pose sur un picto, le cercle bleu se remplit et valide le choix tout seul sans clic manuel.
+                    </li>
                 </ul>
 
-                <h3>2. La Barre d'Expression (En haut)</h3>
+                <h3>2. Le Bandeau Supérieur</h3>
                 <ul>
-                    <li><b>Zone des mots :</b> Affiche la suite des pictogrammes et mots sélectionnés pour former votre phrase.</li>
-                    <li><b>🔊 Bouton Haut-Parleur :</b> Lit à haute voix la phrase complète construite.</li>
-                    <li><b>❌ Bouton Croix :</b> Efface entièrement la barre d'expression.</li>
+                    <li><b>⬅️ RETOUR :</b> Permet de revenir à la page ou au niveau précédent.</li>
+                    <li><b>📅 CALENDRIER :</b> Affiche le calendrier visuel du mois avec vos événements personnalisés.</li>
+                    <li><b>🔍 GOOGLE :</b> Accès direct à la recherche d'images.</li>
+                    <li><b>✉ CONTACT :</b> Message de support par email.</li>
+                    <li><b>⚙ RÉGLAGES :</b> Accède aux interrupteurs des options d'accessibilité, de commande oculaire et de synthèse vocale.</li>
+                    <li><b>💾 EXPORT :</b> Sauvegarde complète directement sur clé USB ou stockage local.</li>
                 </ul>
 
-                <h3>3. Le Bandeau Inférieur (Navigation rapide)</h3>
+                <h3>3. La Barre d'Expression (En haut)</h3>
                 <ul>
-                    <li><b>🚨 URGENCE :</b> Déclenche l'appel d'urgence visuel et sonore (clignotement de l'écran + appel répété).</li>
-                    <li><b>💬 PHRASES :</b> Accède à une liste de phrases pré-enregistrées pour faciliter les échanges rapides.</li>
-                    <li><b>⌨️ CLAVIER :</b> Ouvre un clavier virtuel pour écrire du texte libre lettre par lettre.</li>
-                    <li><b>➕ AJOUTER :</b> Permet de créer de nouveaux chapitres ou d'ajouter des pictogrammes via la recherche Arasaac ou la caméra.</li>
-                    <li><b>✏️ EDIT :</b> Active le mode édition pour modifier, déplacer ou supprimer n'importe quel élément de l'application.</li>
+                    <li><b>Zone des mots :</b> Affiche la suite des pictogrammes pour former votre phrase.</li>
+                    <li><b>🔊 Bouton Haut-Parleur :</b> Lit la phrase complète à haute voix.</li>
+                    <li><b>❌ Bouton Croix :</b> Efface entièrement la barre.</li>
+                </ul>
+
+                <h3>4. Le Bandeau Inférieur (Navigation rapide)</h3>
+                <ul>
+                    <li><b>🚨 URGENCE :</b> Appel d'urgence visuel et sonore.</li>
+                    <li><b>💬 PHRASES :</b> Liste de phrases pré-enregistrées.</li>
+                    <li><b>⌨️ CLAVIER :</b> Clavier virtuel texte libre.</li>
+                    <li><b>➕ AJOUTER :</b> Création de chapitres ou pictogrammes (Arasaac / Photo).</li>
+                    <li><b>✏️ EDIT :</b> Mode édition pour modifier, déplacer, masquer ou supprimer des éléments.</li>
                 </ul>
             </div>
             <div class="notice-footer">
@@ -327,7 +420,11 @@
 
         <!-- PAGE CALENDRIER VISUEL PERSONNALISABLE -->
         <div id="p-calendrier" class="page">
-            <h2>📅 CALENDRIER &amp; ÉVÉNEMENTS</h2>
+            <div class="podd-page-header">
+                <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : CALENDRIER &amp; ÉVÉNEMENTS</span>
+                <span class="podd-tab-badge">INDEX PODD</span>
+            </div>
+            <input type="text" class="edit-input-field" value="CALENDRIER &amp; ÉVÉNEMENTS" oninput="modifierDomaineDirect(this)">
             <div class="cal-card">
                 <div id="cal-banner" class="cal-date-banner">Chargement...</div>
                 <div id="cal-icon" class="cal-symbol">📅</div>
@@ -346,7 +443,11 @@
         </div>
 
         <div id="p-phrases" class="page">
-            <h2>💬 PHRASES RAPIDES</h2>
+            <div class="podd-page-header">
+                <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : PHRASES RAPIDES</span>
+                <span class="podd-tab-badge">INDEX PODD</span>
+            </div>
+            <input type="text" class="edit-input-field" value="PHRASES RAPIDES" oninput="modifierDomaineDirect(this)">
             <button class="btn-f" style="background:var(--violet); width:100%; padding:15px; font-size:14px; font-weight:bold; margin-bottom:15px;" onclick="ajouterPhraseRapide()">➕ NOUVELLE PHRASE</button>
             <div class="grille-phrases" id="liste-phrases">
                 <div class="btn-phrase-rapide" onclick="parler('Bonjour, comment allez-vous ?')">
@@ -365,7 +466,11 @@
         </div>
 
         <div id="p-contact" class="page">
-            <h2>✉ CONTACT, SUGGESTIONS &amp; SUPPORT</h2>
+            <div class="podd-page-header">
+                <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : CONTACT &amp; SUPPORT</span>
+                <span class="podd-tab-badge">INDEX PODD</span>
+            </div>
+            <input type="text" class="edit-input-field" value="CONTACT &amp; SUPPORT" oninput="modifierDomaineDirect(this)">
             <div class="reglage-item">
                 <p style="font-size:13px; color:#555; margin-top:0;">Une question ou une idée ? Envoyez-nous un message à <br><b>handideveloppe@proton.me</b></p>
                 <div class="slider-row">
@@ -381,13 +486,60 @@
         </div>
 
         <div id="p-opts" class="page">
-            <h2>🎨 CODE COULEUR CAA / PODD</h2>
+            <div class="podd-page-header">
+                <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : RÉGLAGES &amp; OPTIONS</span>
+                <span class="podd-tab-badge">INDEX PODD</span>
+            </div>
+            <input type="text" class="edit-input-field" value="RÉGLAGES &amp; OPTIONS" oninput="modifierDomaineDirect(this)">
+            <h2>🎨 ACCOMPAGNEMENT VISUEL CAA / PODD</h2>
             <div class="reglage-item">
                 <div class="slider-row">
-                    <label for="podd-mode-select">Palette de couleurs des chapitres :</label>
+                    <label for="podd-mode-select">Palette globale et persistance visuelle :</label>
                     <select id="podd-mode-select" onchange="changerPalettePodd(this.value)">
                         <option value="standard">Palette Standard PictoSpeak</option>
-                        <option value="podd">Norme CAA / PODD (Officielle)</option>
+                        <option value="podd">Norme CAA / PODD Persistante (Officielle)</option>
+                    </select>
+                </div>
+                <div class="toggle-row">
+                    <span>Masquage du vocabulaire inactif (Hide &amp; Show)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-hide-masked" onchange="toggleHideMasked(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Balisage &amp; Indicateurs de page (Indexation PODD)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-podd-indicators" checked onchange="togglePoddIndicators(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Indicateurs de syntaxe visuelle (Temps / Tournure)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-show-syntax" checked onchange="toggleShowSyntax(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <h2>👁️ ACCÈS OCULAIRE &amp; DWELL TIME (SUPPORT PÉRIPHÉRIQUES)</h2>
+            <div class="reglage-item">
+                <p style="font-size:12px; color:#555; margin-top:0; margin-bottom:10px;">Compatible barres USB, apps Android (EVA Facial Mouse) &amp; iOS (Suivi de tête natif).</p>
+                <div class="toggle-row">
+                    <span>Mode Sélection au Regard / Survol (Dwell Time)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="chk-dwell-mode" onchange="toggleDwellMode(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="slider-row">
+                    <label for="dwell-time-select">Temps de fixation avant validation :</label>
+                    <select id="dwell-time-select" onchange="saveDwellSettings()">
+                        <option value="0.8">0.8 seconde (Rapide)</option>
+                        <option value="1.2" selected>1.2 seconde (Recommandé)</option>
+                        <option value="1.8">1.8 seconde (Anti-clignotement)</option>
+                        <option value="2.5">2.5 secondes (Lent / Débutant)</option>
                     </select>
                 </div>
             </div>
@@ -447,7 +599,7 @@
 
             <h2>🔄 MISE À JOUR SYSTÈME</h2>
             <div class="reglage-item">
-                <p style="font-size:13px; color:#555; margin-top:0;">Version actuelle du code : <b id="lbl-version">2026.15</b></p>
+                <p style="font-size:13px; color:#555; margin-top:0;">Version actuelle du code : <b id="lbl-version">2026.24</b></p>
             </div>
 
             <h2>💾 SAUVEGARDE ET RESTAURATION GLOBALE</h2>
@@ -491,12 +643,15 @@
     <input type="file" id="import-global-file" style="display:none" accept=".html" onchange="importerSauvegardeGlobale(this)">
 
     <script>
-        const APP_VERSION = "2026.15";
+        const APP_VERSION = "2026.24";
 
         let siri, hist = ['sommaire'], voicesList = [], audioUnlocked = false, bipModeActive = false;
+        let dwellActive = false, dwellTimer = null, dwellCurrentTarget = null, dwellDelaySec = 1.2;
+
         const nms = ["IDENTITE DU L'UTILISATEUR", "FAMILLE & PERSONELS", "BESOINS IMMEDIATS", "EMOTIONS & ETAT", "ACTIONS & DEMANDE", "LIEUX & SORTIES"];
         const clsStandard = ["#9b59b6", "#FF9800", "#2196F3", "#4CAF50", "#e67e22", "#34495e"];
         const clsPodd = ["#f1c40f", "#27ae60", "#d35400", "#2980b9", "#e84393", "#7f8c8d"];
+        const poddCategories = ["jaune", "vert", "orange", "bleu", "rose", "gris"];
 
         const repereMois = [
             { mois: "Janvier", symbol: "❄️", desc: "Hiver — Bonne année !", vocal: "C'est le mois de la nouvelle année et de la neige." },
@@ -532,6 +687,7 @@
             
             loadVoiceSettings();
             loadFlashSettings();
+            loadDwellSettings();
             
             bipModeActive = localStorage.getItem('pictospeak_bip_mode') === 'true';
             let chkBip = document.getElementById('chk-bip-mode');
@@ -547,10 +703,91 @@
             let savedPodd = localStorage.getItem('pictospeak_podd_mode') || 'standard';
             let poddSelect = document.getElementById('podd-mode-select');
             if(poddSelect) poddSelect.value = savedPodd;
+            appliquerModePoddPersistant(savedPodd);
+
+            let hideMasked = localStorage.getItem('pictospeak_hide_masked') === 'true';
+            toggleHideMasked(hideMasked);
+            let chkHideMasked = document.getElementById('chk-hide-masked');
+            if(chkHideMasked) chkHideMasked.checked = hideMasked;
+
+            let showIndicators = localStorage.getItem('pictospeak_podd_indicators') !== 'false';
+            togglePoddIndicators(showIndicators);
+            let chkIndicators = document.getElementById('chk-podd-indicators');
+            if(chkIndicators) chkIndicators.checked = showIndicators;
+
+            let showSyntax = localStorage.getItem('pictospeak_show_syntax') !== 'false';
+            toggleShowSyntax(showSyntax);
+            let chkSyntax = document.getElementById('chk-show-syntax');
+            if(chkSyntax) chkSyntax.checked = showSyntax;
 
             attacherEvenementsZoom();
             refreshEdit();
             genererCalendrierVisuel();
+            initDwellListeners();
+        }
+
+        function toggleDwellMode(val) {
+            dwellActive = val;
+            localStorage.setItem('pictospeak_dwell_active', val);
+            initDwellListeners();
+        }
+
+        function saveDwellSettings() {
+            let select = document.getElementById('dwell-time-select');
+            if(select) {
+                dwellDelaySec = parseFloat(select.value);
+                localStorage.setItem('pictospeak_dwell_delay', dwellDelaySec);
+            }
+        }
+
+        function loadDwellSettings() {
+            dwellActive = localStorage.getItem('pictospeak_dwell_active') === 'true';
+            let chkDwell = document.getElementById('chk-dwell-mode');
+            if(chkDwell) chkDwell.checked = dwellActive;
+
+            dwellDelaySec = parseFloat(localStorage.getItem('pictospeak_dwell_delay') || "1.2");
+            let selectDwell = document.getElementById('dwell-time-select');
+            if(selectDwell) selectDwell.value = dwellDelaySec.toString();
+        }
+
+        function initDwellListeners() {
+            document.querySelectorAll('.picto, .btn-ch, .btn-f, .btn-h').forEach(el => {
+                el.removeEventListener('mouseenter', startDwellTimer);
+                el.removeEventListener('mouseleave', cancelDwellTimer);
+                if (dwellActive) {
+                    el.addEventListener('mouseenter', startDwellTimer);
+                    el.addEventListener('mouseleave', cancelDwellTimer);
+                }
+            });
+        }
+
+        function startDwellTimer(e) {
+            if (!dwellActive || document.body.classList.contains('edit-mode')) return;
+            let target = e.currentTarget;
+            dwellCurrentTarget = target;
+
+            let overlay = target.querySelector('.dwell-overlay');
+            if(!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'dwell-overlay';
+                target.appendChild(overlay);
+            }
+            target.style.setProperty('--dwell-delay', dwellDelaySec + 's');
+            target.classList.add('dwelling');
+
+            dwellTimer = setTimeout(() => {
+                target.classList.remove('dwelling');
+                let img = target.querySelector('img');
+                if (img) img.click();
+                else target.click();
+            }, dwellDelaySec * 1000);
+        }
+
+        function cancelDwellTimer(e) {
+            if (dwellTimer) clearTimeout(dwellTimer);
+            if (dwellCurrentTarget) dwellCurrentTarget.classList.remove('dwelling');
+            dwellTimer = null;
+            dwellCurrentTarget = null;
         }
 
         function ouvrirNotice() { document.getElementById('notice-modal').style.display = 'flex'; }
@@ -575,15 +812,57 @@
             alert("✅ Notice téléchargée ! Vous pouvez l'ouvrir dans un navigateur ou l'imprimer en PDF.");
         }
 
+        function toggleHideMasked(val) {
+            localStorage.setItem('pictospeak_hide_masked', val);
+            if(val) document.body.classList.add('hide-masked');
+            else document.body.classList.remove('hide-masked');
+        }
+
+        function togglePoddIndicators(val) {
+            localStorage.setItem('pictospeak_podd_indicators', val);
+            if(val) document.body.classList.add('show-podd-indicators');
+            else document.body.classList.remove('show-podd-indicators');
+        }
+
+        function toggleShowSyntax(val) {
+            localStorage.setItem('pictospeak_show_syntax', val);
+            if(val) document.body.classList.add('show-syntax');
+            else document.body.classList.remove('show-syntax');
+        }
+
         function changerPalettePodd(val) {
             localStorage.setItem('pictospeak_podd_mode', val);
+            appliquerModePoddPersistant(val);
+            autoSave();
+            alert("✅ Code couleur persistant mis à jour !");
+        }
+
+        function appliquerModePoddPersistant(val) {
+            if (val === 'podd') {
+                document.body.classList.add('podd-active');
+            } else {
+                document.body.classList.remove('podd-active');
+            }
+
             let palette = (val === 'podd') ? clsPodd : clsStandard;
             let boutonsChapitres = document.querySelectorAll('#grille-sommaire .btn-ch');
             boutonsChapitres.forEach((btn, index) => {
-                if(palette[index]) btn.style.backgroundColor = palette[index];
+                if(palette[index % palette.length]) btn.style.backgroundColor = palette[index % palette.length];
             });
-            autoSave();
-            alert("✅ Palette de couleurs mise à jour !");
+
+            document.querySelectorAll('.page').forEach((page, pageIdx) => {
+                let catPodd = poddCategories[pageIdx % poddCategories.length] || "gris";
+                let header = page.querySelector('.podd-page-header');
+                if(header) {
+                    let borderCol = (val === 'podd') ? `var(--podd-${catPodd})` : `var(--bleu)`;
+                    header.style.borderLeftColor = borderCol;
+                }
+                page.querySelectorAll('.picto').forEach(picto => {
+                    if (!picto.hasAttribute('data-podd')) {
+                        picto.setAttribute('data-podd', catPodd);
+                    }
+                });
+            });
         }
 
         function genererCalendrierVisuel() {
@@ -912,6 +1191,9 @@
             localStorage.setItem('pictospeak_data', document.getElementById('main-content').innerHTML); 
             attacherEvenementsZoom();
             refreshEdit();
+            let savedPodd = localStorage.getItem('pictospeak_podd_mode') || 'standard';
+            appliquerModePoddPersistant(savedPodd);
+            initDwellListeners();
         }
 
         function syncSwitches() {
@@ -931,15 +1213,18 @@
             if(grilleSommaire) {
                 grilleSommaire.innerHTML = "";
                 nms.forEach((n, i) => { 
-                    grilleSommaire.innerHTML += `<button class="btn-ch" style="background-color:${palette[i]}" onclick="go('ch-${i+1}')"><span>${n}</span></button>`; 
+                    grilleSommaire.innerHTML += `<button class="btn-ch" style="background-color:${palette[i % palette.length]}" onclick="go('ch-${i+1}')"><span>${n}</span></button>`; 
                 });
             }
             nms.forEach((n, i) => {
                 let chID = `ch-${i+1}`;
                 if(!document.getElementById(chID)) {
                     let chHTML = `<div id="${chID}" class="page">
-                        <h2><span>${n}</span></h2>
-                        <input type="text" class="edit-input-field" value="${n}" oninput="modifierTitreDirect(this)">
+                        <div class="podd-page-header">
+                            <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : ${n}</span>
+                            <span class="podd-tab-badge">INDEX PODD ${i+1}</span>
+                        </div>
+                        <input type="text" class="edit-input-field" value="${n}" oninput="modifierDomaineDirect(this)">
                         <div class="grille-p"></div>
                     </div>`;
                     document.getElementById('main-content').insertAdjacentHTML('beforeend', chHTML);
@@ -947,17 +1232,15 @@
             });
         }
 
-        function modifierTitreDirect(inputEl) {
+        function modifierDomaineDirect(inputEl) {
             let pageDiv = inputEl.closest('.page');
             if(!pageDiv) return;
-            let span = pageDiv.querySelector('h2 span');
-            if(span) {
-                let nouveauTexte = inputEl.value.toUpperCase();
-                span.innerText = nouveauTexte;
-                let pageId = pageDiv.id;
-                document.querySelectorAll(`.btn-ch[onclick*="${pageId}"] span`).forEach(btnSpan => { btnSpan.innerText = nouveauTexte; });
-                autoSave();
-            }
+            let nouveauTexte = inputEl.value.toUpperCase();
+            let pageId = pageDiv.id;
+            document.querySelectorAll(`.btn-ch[onclick*="${pageId}"] span`).forEach(btnSpan => { btnSpan.innerText = nouveauTexte; });
+            let poddLabel = pageDiv.querySelector('.podd-page-header span');
+            if(poddLabel) poddLabel.innerText = "📌 DOMAINE : " + nouveauTexte;
+            autoSave();
         }
 
         function viderBarre() { document.getElementById('zone-mots').innerHTML = ""; autoSave(); }
@@ -1041,6 +1324,7 @@
                 if(mainC) mainC.scrollTop = 0;
             }
             if(id !== hist[hist.length-1]) hist.push(id); 
+            initDwellListeners();
         }
 
         function back() { 
@@ -1092,8 +1376,9 @@
             document.querySelectorAll('.pages .page').forEach(page => {
                 let id = page.id;
                 if(id !== 'p-phrases' && id !== 'p-contact' && id !== 'p-opts' && id !== 'p-calendrier') {
-                    let span = page.querySelector('h2 span');
-                    chapters.push({ id: id, name: span ? span.innerText : id });
+                    let span = page.querySelector('.podd-page-header span');
+                    let nomDomaine = span ? span.innerText.replace("📌 DOMAINE : ", "") : id;
+                    chapters.push({ id: id, name: nomDomaine });
                 }
             });
             let optionsHtml = chapters.map(ch => `<option value="${ch.id}">${ch.name}</option>`).join('');
@@ -1142,6 +1427,7 @@
                         div.onclick = function() {
                             let select = document.getElementById('arasaac-target-chapter');
                             let targetChapterId = select ? select.value : 'ch-1';
+
                             let targetPage = document.getElementById(targetChapterId);
                             if(!targetPage) targetPage = document.querySelector('.page.active');
                             if(!targetPage || !targetPage.querySelector('.grille-p')) { alert("Chapitre cible introuvable."); return; }
@@ -1149,7 +1435,16 @@
                             let nomPicto = prompt("Nom du pictogramme :", query.toUpperCase());
                             if(!nomPicto) return;
 
-                            targetPage.querySelector('.grille-p').innerHTML += `<div class="picto"><img src="${imgUrl}" onclick="addBarre('${nomPicto.replace(/'/g, "\\'")}',this.src)"><b>${nomPicto.toUpperCase()}</b></div>`;
+                            let allPages = Array.from(document.querySelectorAll('.pages .page'));
+                            let pIdx = allPages.indexOf(targetPage);
+                            let catPodd = poddCategories[pIdx % poddCategories.length] || "gris";
+
+                            targetPage.querySelector('.grille-p').innerHTML += `
+                                <div class="picto" data-podd="${catPodd}">
+                                    <span class="syntax-badge">PRES.</span>
+                                    <img src="${imgUrl}" onclick="addBarre('${nomPicto.replace(/'/g, "\\'")}',this.src)">
+                                    <b>${nomPicto.toUpperCase()}</b>
+                                </div>`;
                             autoSave(); refreshEdit(); closeModal();
                             alert(`✅ "${nomPicto.toUpperCase()}" ajouté avec succès !`);
                         };
@@ -1183,13 +1478,17 @@
                     let id = "ch-" + Date.now(); 
                     let savedPodd = localStorage.getItem('pictospeak_podd_mode') || 'standard';
                     let palette = (savedPodd === 'podd') ? clsPodd : clsStandard;
-                    let randomColor = palette[Math.floor(Math.random() * palette.length)];
+                    let count = document.querySelectorAll('#grille-sommaire .btn-ch').length;
+                    let assignedColor = palette[count % palette.length];
 
-                    grilleSommaire.innerHTML += `<button class="btn-ch" style="background-color:${randomColor};" onclick="go('${id}')"><span>${n.toUpperCase()}</span></button>`; 
+                    grilleSommaire.innerHTML += `<button class="btn-ch" style="background-color:${assignedColor};" onclick="go('${id}')"><span>${n.toUpperCase()}</span></button>`; 
                     document.getElementById('main-content').insertAdjacentHTML('beforeend', `
                         <div id="${id}" class="page">
-                            <h2><span>${n.toUpperCase()}</span></h2>
-                            <input type="text" class="edit-input-field" value="${n.toUpperCase()}" oninput="modifierTitreDirect(this)">
+                            <div class="podd-page-header">
+                                <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : ${n.toUpperCase()}</span>
+                                <span class="podd-tab-badge">INDEX PODD ${count+1}</span>
+                            </div>
+                            <input type="text" class="edit-input-field" value="${n.toUpperCase()}" oninput="modifierDomaineDirect(this)">
                             <div class="grille-p"></div>
                         </div>
                     `); 
@@ -1198,55 +1497,100 @@
             });
         }
 
+        function toggleMaskPicto(pictoEl) {
+            if(!pictoEl) return;
+            pictoEl.classList.toggle('masked');
+            autoSave();
+        }
+
+        function gererSyntaxePicto(pictoEl) {
+            if(!pictoEl) return;
+            let badge = pictoEl.querySelector('.syntax-badge');
+            if(!badge) {
+                badge = document.createElement('span');
+                badge.className = 'syntax-badge';
+                badge.innerText = 'PRES.';
+                pictoEl.appendChild(badge);
+            }
+            
+            let val = prompt("Marqueur de Syntaxe / Temps :\n1: Présent (PRES.)\n2: Passé (PASSÉ)\n3: Futur (FUTUR)\n4: Négation (NON)\n5: Question (?)", badge.innerText);
+            if(val) {
+                if(val === "1") badge.innerText = "PRES.";
+                else if(val === "2") badge.innerText = "PASSÉ";
+                else if(val === "3") badge.innerText = "FUTUR";
+                else if(val === "4") badge.innerText = "NON";
+                else if(val === "5") badge.innerText = "QUERY";
+                else badge.innerText = val.toUpperCase().slice(0,6);
+                autoSave();
+            }
+        }
+
         function refreshEdit() { 
+            document.querySelectorAll('.page h2').forEach(h2 => h2.remove());
+
             document.querySelectorAll('.page').forEach(page => {
-                let h2 = page.querySelector('h2');
-                if(h2 && !page.querySelector('.edit-input-field') && h2.querySelector('span')) {
-                    let spanText = h2.querySelector('span').innerText;
-                    let inputField = document.createElement('input');
-                    inputField.type = 'text'; inputField.className = 'edit-input-field';
-                    inputField.value = spanText; inputField.oninput = function() { modifierTitreDirect(this); };
-                    h2.after(inputField);
-                } else if(page.querySelector('.edit-input-field') && h2 && h2.querySelector('span')) {
-                    let inputField = page.querySelector('.edit-input-field');
-                    if(inputField.value !== h2.querySelector('span').innerText) inputField.value = h2.querySelector('span').innerText;
+                let header = page.querySelector('.podd-page-header');
+                let inputField = page.querySelector('.edit-input-field');
+                if(header && !inputField) {
+                    let span = header.querySelector('span');
+                    let nomDomaine = span ? span.innerText.replace("📌 DOMAINE : ", "") : "CHAPITRE";
+                    let newInp = document.createElement('input');
+                    newInp.type = 'text'; newInp.className = 'edit-input-field';
+                    newInp.value = nomDomaine; newInp.oninput = function() { modifierDomaineDirect(this); };
+                    header.after(newInp);
+                } else if(inputField && header) {
+                    let span = header.querySelector('span');
+                    let currentNom = span ? span.innerText.replace("📌 DOMAINE : ", "") : "";
+                    if(inputField.value !== currentNom && currentNom) inputField.value = currentNom;
                 }
             });
 
             document.querySelectorAll('.btn-ch').forEach(el => {
-                if(!el.querySelector('.ed-tools')) {
+                let tools = el.querySelector('.ed-tools');
+                if(!tools) {
                     el.style.position = 'relative';
-                    let tools = document.createElement('div');
+                    tools = document.createElement('div');
                     tools.className = 'ed-tools';
-                    tools.innerHTML = `
-                        <div class="ed-btn ed-crayon" title="Modifier le texte" onclick="event.stopPropagation(); editerTexteElement(this.closest('.btn-ch').querySelector('span'))">✎</div>
-                        <div class="ed-btn ed-photo" title="Illustrer par une image" onclick="event.stopPropagation(); preparerPhotoElement(this.closest('.btn-ch'))">📷</div>
-                        <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); supprimerElement(this.closest('.btn-ch'))">×</div>
-                    `;
                     el.appendChild(tools);
                 }
+                tools.innerHTML = `
+                    <div class="ed-btn ed-crayon" title="Modifier le texte" onclick="event.stopPropagation(); editerTexteElement(this.closest('.btn-ch').querySelector('span'))">✎</div>
+                    <div class="ed-btn ed-photo" title="Illustrer par une image" onclick="event.stopPropagation(); preparerPhotoElement(this.closest('.btn-ch'))">📷</div>
+                    <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); supprimerElement(this.closest('.btn-ch'))">×</div>
+                `;
             });
 
-            document.querySelectorAll('.page h2').forEach(h2 => {
-                if(!h2.querySelector('.ed-tools') && h2.querySelector('span')) {
-                    h2.style.position = 'relative';
-                    let tools = document.createElement('div');
+            document.querySelectorAll('.podd-page-header').forEach(header => {
+                let tools = header.querySelector('.ed-tools');
+                if(!tools) {
+                    header.style.position = 'relative';
+                    tools = document.createElement('div');
                     tools.className = 'ed-tools';
-                    tools.innerHTML = `
-                        <div class="ed-btn ed-crayon" title="Modifier le titre" onclick="event.stopPropagation(); editerTexteElement(this.closest('h2').querySelector('span'))">✎</div>
-                        <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); supprimerPageActive()">×</div>
-                    `;
-                    h2.appendChild(tools);
+                    header.appendChild(tools);
                 }
+                tools.innerHTML = `
+                    <div class="ed-btn ed-crayon" title="Modifier le domaine" onclick="event.stopPropagation(); editerTexteElement(this.closest('.podd-page-header').querySelector('span'))">✎</div>
+                    <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); supprimerPageActive()">×</div>
+                `;
             });
 
             document.querySelectorAll('.picto').forEach(el => {
+                if(!el.querySelector('.syntax-badge')) {
+                    let b = document.createElement('span');
+                    b.className = 'syntax-badge';
+                    b.innerText = 'PRES.';
+                    el.appendChild(b);
+                }
                 let tools = el.querySelector('.ed-tools');
                 if(!tools) {
-                    el.style.position = 'relative'; tools = document.createElement('div');
-                    tools.className = 'ed-tools'; el.appendChild(tools);
+                    el.style.position = 'relative';
+                    tools = document.createElement('div');
+                    tools.className = 'ed-tools';
+                    el.appendChild(tools);
                 }
                 tools.innerHTML = `
+                    <div class="ed-btn ed-mask" title="Masquer / Afficher" onclick="event.stopPropagation(); toggleMaskPicto(this.closest('.picto'))">👁</div>
+                    <div class="ed-btn ed-syntax" title="Marqueur de syntaxe" onclick="event.stopPropagation(); gererSyntaxePicto(this.closest('.picto'))">⏱</div>
                     <div class="ed-btn ed-crayon" title="Modifier le texte" onclick="event.stopPropagation(); editerTextePicto(this.closest('.picto'))">✎</div>
                     <div class="ed-btn ed-photo" title="Modifier l'image" onclick="event.stopPropagation(); preparerPhotoPicto(this.closest('.picto'))">📷</div>
                     <div class="ed-btn ed-move" title="Ajuster l'image" onclick="event.stopPropagation(); reglerPositionImage(this.closest('.picto').querySelector('img'))">↔</div>
@@ -1255,17 +1599,19 @@
             });
 
             document.querySelectorAll('.btn-phrase-rapide').forEach(el => {
-                if(!el.querySelector('.ed-tools')) {
+                let tools = el.querySelector('.ed-tools');
+                if(!tools) {
                     el.style.position = 'relative';
-                    let tools = document.createElement('div');
+                    tools = document.createElement('div');
                     tools.className = 'ed-tools';
-                    tools.innerHTML = `
-                        <div class="ed-btn ed-crayon" title="Modifier la phrase" onclick="event.stopPropagation(); editerTexteElement(this.closest('.btn-phrase-rapide').querySelector('span'))">✎</div>
-                        <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); this.closest('.btn-phrase-rapide').remove(); autoSave();">×</div>
-                    `;
                     el.appendChild(tools);
                 }
+                tools.innerHTML = `
+                    <div class="ed-btn ed-crayon" title="Modifier la phrase" onclick="event.stopPropagation(); editerTexteElement(this.closest('.btn-phrase-rapide').querySelector('span'))">✎</div>
+                    <div class="ed-btn ed-del" title="Supprimer" onclick="event.stopPropagation(); this.closest('.btn-phrase-rapide').remove(); autoSave();">×</div>
+                `;
             });
+            initDwellListeners();
         }
 
         function reglerPositionImage(imgEl) {
@@ -1279,15 +1625,23 @@
         
         function editerTexteElement(target) {
             if(!target) return;
-            let fields = `<input type="text" id="m-val" value="${target.innerText}">`;
+            let currentTxt = target.innerText.replace("📌 DOMAINE : ", "");
+            let fields = `<input type="text" id="m-val" value="${currentTxt}">`;
             openModal("Modifier le texte", fields, () => {
                 let n = document.getElementById('m-val').value;
                 if(n) { 
-                    target.innerText = n.toUpperCase(); 
-                    let page = target.closest('.page');
-                    if(page) {
-                        let inp = page.querySelector('.edit-input-field');
-                        if(inp) inp.value = n.toUpperCase();
+                    let nouveauTexte = n.toUpperCase();
+                    if(target.closest('.podd-page-header')) {
+                        target.innerText = "📌 DOMAINE : " + nouveauTexte;
+                        let page = target.closest('.page');
+                        if(page) {
+                            let pageId = page.id;
+                            document.querySelectorAll(`.btn-ch[onclick*="${pageId}"] span`).forEach(btnSpan => { btnSpan.innerText = nouveauTexte; });
+                            let inp = page.querySelector('.edit-input-field');
+                            if(inp) inp.value = nouveauTexte;
+                        }
+                    } else {
+                        target.innerText = nouveauTexte;
                     }
                     autoSave(); 
                 }
