@@ -9,7 +9,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PictoSpeak">
+
+    <!-- Bibliothèques ultra-légères MediaPipe Face Mesh pour le suivi de la tête -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
     
+    <!-- Bibliothèque html2pdf pour la génération native de PDF dans le code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root { 
             --bg: #F0F2F5; 
@@ -61,9 +68,9 @@
         .touche-space { flex: 0.25; max-width: none; font-size: 12px; }
         .touche-del { flex: 1; max-width: 50px; font-size: 16px; }
         
-        /* Bandeau du HAUT (6 boutons adaptatifs) */
-        .header { background: var(--dark); padding: 10px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; z-index: 10; flex-shrink: 0; }
-        .btn-h { background: white; border: none; padding: 12px 2px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 8px; text-transform: uppercase; }
+        /* Bandeau du HAUT auto-adaptatif (Flexbox) */
+        .header { background: var(--dark); padding: 10px; display: flex; flex-wrap: wrap; gap: 4px; z-index: 10; flex-shrink: 0; justify-content: center; align-items: center; }
+        .btn-h { flex: 1; background: white; border: none; padding: 12px 2px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 9px; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 55px; }
         
         .pages { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 160px; position: relative; }
         .page { display: none; max-width: 800px; margin: 0 auto; }
@@ -109,12 +116,10 @@
             word-break: break-word;
         }
         
-        /* Balisage & Indicateur de Page PODD */
         .podd-page-header { display: none; background: #fff; border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; border-left: 8px solid var(--bleu); align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
         body.show-podd-indicators .podd-page-header { display: flex; }
         .podd-tab-badge { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; background: var(--dark); text-transform: uppercase; }
 
-        /* Taille des grilles de pictogrammes agrandie de ~12% et centrée */
         .grille-p { display: grid; grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); gap: 12px; justify-content: center; justify-items: center; }
         .picto { background: white; padding: 8px; border-radius: 15px; position: relative; border: 2px solid #ddd; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; transition: border-color 0.3s ease, opacity 0.3s ease; width: 100%; max-width: 155px; }
         .picto img { width: 100%; height: 105px; object-fit: contain; background: #fff; cursor: pointer; transition: transform 0.2s ease; }
@@ -143,16 +148,38 @@
             100% { clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%); background: rgba(33, 150, 243, 0.35); }
         }
 
-        /* Badges de Syntaxe Visuelle */
+        #custom-cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            transition: left 0.08s ease-out, top 0.08s ease-out;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #webcam-feed {
+            display: none;
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 110px;
+            height: 80px;
+            border-radius: 8px;
+            border: 2px solid var(--bleu);
+            z-index: 9000;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
         .syntax-badge { display: none; position: absolute; top: 5px; left: 5px; background: var(--dark); color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 6px; z-index: 5; }
         body.show-syntax .syntax-badge { display: block; }
 
-        /* Masquage de Vocabulaire */
         .picto.masked { opacity: 0.2; pointer-events: none; }
         body.edit-mode .picto.masked { opacity: 0.6; pointer-events: auto; }
         body.hide-masked .picto.masked { display: none !important; }
 
-        /* Code Couleur Persistant PODD */
         body.podd-active .picto[data-podd="jaune"] { border-color: var(--podd-jaune); }
         body.podd-active .picto[data-podd="jaune"] b { background: var(--podd-jaune); color: #000; }
         body.podd-active .picto[data-podd="vert"] { border-color: var(--podd-vert); }
@@ -188,8 +215,9 @@
         input:checked + .slider { background-color: var(--vert); }
         input:checked + .slider:before { transform: translateX(20px); }
         
-        .footer { background: #34495E; padding: 10px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; position: fixed; bottom: 0; width: 100%; z-index: 100; }
-        .btn-f { padding: 12px 2px; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 9px; text-transform: uppercase; position: relative; }
+        /* Bandeau du BAS auto-adaptatif (Flexbox) */
+        .footer { background: #34495E; padding: 10px; display: flex; flex-wrap: wrap; gap: 4px; position: fixed; bottom: 0; width: 100%; z-index: 100; justify-content: center; align-items: center; }
+        .btn-f { flex: 1; padding: 12px 2px; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 9px; text-transform: uppercase; position: relative; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 55px; }
 
         #flash-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
         .clignoter-rapide { animation: flash 0.3s infinite; }
@@ -197,7 +225,6 @@
         .clignoter-fixe { background: red !important; }
         @keyframes flash { 0% { background: red; } 50% { background: white; } 100% { background: red; } }
         
-        /* Outils d'édition compacts sur 2 colonnes bien visibles (avec l'œil 👁️ de masquage) */
         .ed-tools { display: none; position: absolute; top: 5px; right: 5px; z-index: 50; gap: 3px; pointer-events: auto; max-width: 60px; flex-wrap: wrap; justify-content: flex-end; }
         body.edit-mode .ed-tools { display: flex !important; }
         .ed-btn { width: 25px; height: 25px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid white; font-size: 10px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -229,7 +256,6 @@
         #license-screen button { width: 100%; padding: 15px; background: var(--vert); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
         #lic-error { color: var(--rouge); font-weight: bold; font-size: 14px; margin-top: 10px; display: none; }
 
-        /* Styles du Calendrier Visuel Personnalisable */
         .cal-card { background: white; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 20px; }
         .cal-symbol { font-size: 80px; margin: 10px 0; line-height: 1; }
         .cal-date-banner { background: var(--bleu); color: white; padding: 12px; border-radius: 12px; font-size: 20px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; }
@@ -239,17 +265,17 @@
         .cal-today { background: var(--orange) !important; color: white !important; box-shadow: 0 3px 8px rgba(255,152,0,0.4); }
         .cal-event-tag { font-size: 9px; background: var(--violet); color: white; border-radius: 4px; padding: 2px 4px; margin-top: 4px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* Fenêtre Notice */
-        #notice-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 60000; justify-content: center; align-items: center; padding: 20px; }
-        .notice-content-box { background: white; width: 100%; max-width: 700px; height: 85vh; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; }
-        .notice-header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .notice-body { padding: 20px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.6; color: #333; }
-        .notice-footer { padding: 15px; background: #eee; display: flex; gap: 10px; justify-content: flex-end; }
+        #notice-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 60000; justify-content: center; align-items: center; padding: 20px; }
+        .notice-content-box { background: white; width: 100%; max-width: 850px; height: 90vh; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .notice-header { background: var(--dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .notice-body { padding: 30px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.7; color: #2C3E50; }
+        .notice-body h2 { color: #2980b9; border-bottom: 2px solid #2980b9; padding-bottom: 5px; margin-top: 25px; }
+        .notice-body h3 { color: #16a085; margin-top: 15px; }
+        .notice-footer { padding: 15px 20px; background: #f1f2f6; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #ddd; }
     </style>
 </head>
 <body onload="init()" onclick="unlockAudio()" ontouchstart="unlockAudio()">
 
-    <!-- ÉCRAN D'ACTIVATION / LICENCE AVEC BOUTON NOTICE INTÉGRÉ -->
     <div id="license-screen">
         <div class="lic-card">
             <div class="logo-pictospeak">
@@ -264,16 +290,18 @@
                 </svg>
             </div>
             <h2 style="margin:0 0 10px 0;">ACTIVER PICTOSPEAK</h2>
-            <p style="font-size:14px; color:#555; margin:0;">Saisissez votre code de test ou votre clé de licence.</p>
-            <input type="text" id="lic-input" placeholder="Ex: TEST-MOI ou PICTO-..." maxlength="30">
+            <p style="font-size:14px; color:#555; margin:0 0 10px 0;">Saisissez votre clé de licence ou lancez votre essai gratuit.</p>
+
+            <button onclick="genererEssaiGratuit()" style="width:100%; padding:14px; background:var(--violet); color:white; border:none; border-radius:10px; font-size:15px; font-weight:bold; cursor:pointer; margin-bottom:10px; box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);">🎁 OBTENIR UN ESSAI GRATUIT (24H)</button>
+
+            <input type="text" id="lic-input" placeholder="Ex: TEST-24H ou PICTO-..." maxlength="30">
             
-            <button onclick="ouvrirNotice()" style="width:100%; padding:14px; background:var(--bleu); color:white; border:none; border-radius:10px; font-size:15px; font-weight:bold; cursor:pointer; margin-bottom:10px;">📖 LIRE / IMPRIMER LA NOTICE</button>
+            <button onclick="ouvrirNotice()" style="width:100%; padding:12px; background:var(--bleu); color:white; border:none; border-radius:10px; font-size:14px; font-weight:bold; cursor:pointer; margin-bottom:10px;">📖 LIRE / IMPRIMER LA NOTICE</button>
             
-            <button onclick="soumettreLicence()">DÉBLOQUER L'APPLICATION</button>
+            <button onclick="soumettreLicence()" style="background:var(--vert);">DÉBLOQUER L'APPLICATION</button>
             
             <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
                 <p style="font-size:12px; color:#666; margin-bottom: 8px;">Pas encore de licence ou besoin d'une clé USB ?</p>
-                <!-- BOUTON MIS À JOUR : "Pour commander" redirigeant vers Netlify -->
                 <a href="https://boutique-de-pictospeak.netlify.app/" target="_blank" style="display: block; width: 100%; padding: 12px; background: #e67e22; color: white; text-decoration: none; border-radius: 10px; font-size: 14px; font-weight: bold; text-align: center;">Pour commander</a>
             </div>
 
@@ -285,68 +313,66 @@
         🚀 Une mise à jour est disponible ! Cliquez ici pour importer la nouvelle version.
     </div>
 
-    <!-- MODALE NOTICE -->
+    <video id="webcam-feed" autoplay playsinline muted></video>
+
+    <!-- FENÊTRE DE LA NOTICE EXTRÊMEMENT DÉTAILLÉE -->
     <div id="notice-modal">
         <div class="notice-content-box">
             <div class="notice-header">
-                <h3 style="margin:0;">📖 NOTICE OFFICIELLE PICTOSPEAK</h3>
+                <h3 style="margin:0;">📖 MANUEL OFFICIEL &amp; RÉFÉRENTIEL TECHNIQUE — PICTOSPEAK</h3>
                 <button onclick="fermerNotice()" style="background:var(--rouge); color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">×</button>
             </div>
             <div class="notice-body" id="notice-text-content">
-                <h2 style="color:var(--dark); margin-top:0;">Guide d'utilisation et Adaptations CAA / PODD</h2>
-                <p><b>PictoSpeak</b> est une application d'aide à la communication (AAC) et de repérage temporel conçue pour les enfants, adolescents et adultes en situation de handicap ou de trouble de la parole.</p>
-                
-                <h3>1. Adaptations Visuelles &amp; Cliniques CAA / PODD</h3>
+                <div style="text-align:center; border-bottom:3px solid #2C3E50; padding-bottom:15px; margin-bottom:25px;">
+                    <h1 style="color:#2C3E50; margin:0; font-size:26px;">PICTOSPEAK : GUIDE CLINIQUE &amp; TECHNIQUE COMPLET</h1>
+                    <p style="color:#7f8c8d; font-size:13px; margin:5px 0 0 0;">Solution Universelle de Communication Alternative et Améliorée (CAA / PODD) pour enfants, adolescents et adultes en situation de handicap.</p>
+                </div>
+
+                <h2>1. Introduction &amp; Philosophie de l'Application</h2>
+                <p><b>PictoSpeak</b> a été conçu pour répondre aux besoins fondamentaux d'expression et d'autonomie des personnes présentant des troubles de la communication (troubles du spectre de l'autisme, retards de langage sévères, paralysies cérébrales, maladies neurodégénératives, polyhandicap).</p>
+                <p>L'application s'appuie sur une structure robuste et verrouillée garantissant qu'aucune modification ou personnalisation (ajout de pictogrammes, modification de chapitres) ne viendra perturber l'ergonomie globale ou désorganiser le classeur.</p>
+
+                <h2>2. Interfaçage Matériel &amp; Accessibilité Multimodale</h2>
+                <p>PictoSpeak est compatible à 100% avec l'ensemble des équipements et méthodes d'accès existants sur le marché :</p>
                 <ul>
-                    <li><b>🎨 Code Couleur Persistant (Norme PODD) :</b> Applique les conventions de couleurs canoniques par catégorie grammaticale :
-                        <br>• 🟡 <b>Jaune :</b> Pronoms, personnes &amp; identité
-                        <br>• 🟢 <b>Vert :</b> Verbes &amp; actions
-                        <br>• 🟠 <b>Orange :</b> Besoins immédiats, objets &amp; activités
-                        <br>• 🔵 <b>Bleu :</b> Émotions &amp; sentiments
-                        <br>• 🟣 <b>Rose :</b> Social &amp; phrases
-                        <br>• ⚫ <b>Gris :</b> Lieux &amp; mots invariables
-                    </li>
-                    <li><b>🏷️ Balisage &amp; Indicateurs de Page :</b> Affiche en haut de chaque chapitre un bandeau-onglet dynamique indiquant le domaine actif et son index pour sécuriser le repérage spatial.</li>
-                    <li><b>🙈 Masquage de Vocabulaire (Hide &amp; Show) :</b> Permet aux aidants ou thérapeutes de masquer temporairement des pictogrammes (icône 👁️ en mode EDIT) afin d'éviter la surcharge cognitive.</li>
-                    <li><b>⏱️ Indicateur de Syntaxe Visuelle :</b> Possibilité de marquer le temps (*Passé / Présent / Futur*) ou la tournure (*Négation / Question*) sur les éléments pour structurer la grammaire.</li>
-                    <li><b>👁️ Sélection au Regard &amp; Alternatives Économiques (Dwell Time) :</b> PictoSpeak intègre un mode de validation par temps de fixation (*Dwell Time*) compatible avec :
-                        <br>• Les <b>barres de suivi oculaire professionnelles</b> (Tobii, Irisbond...)
-                        <br>• <b>Sur Android :</b> L'application gratuite <i>EVA Facial Mouse</i> (Google Play).
-                        <br>• <b>Sur iOS (iPhone/iPad) :</b> La fonction native <i>Suivi de tête</i> (Réglages > Accessibilité > Suivi de tête).
-                        <br>• <b>Sur PC (Windows) :</b> Les logiciels gratuits <i>Camera Mouse</i> ou <i>Enable Viacam (eViacam)</i>.
-                        <br>Dès que le curseur se pose sur un picto, le cercle bleu se remplit et valide le choix tout seul sans clic manuel.
-                    </li>
+                    <li><b>Suivi Oculaire Externe (Barres Tobii, EyeTech, Irisbond, etc.) :</b> L'application intercepte nativement le pointeur de la souris piloté par les barres ophtalmiques du marché. Le survol déclenche l'anneau de progression (*Dwell Time*) pour valider la sélection sans clic physique.</li>
+                    <li><b>Suivi de Tête / Nez par Webcam (MediaPipe Face Mesh) :</b> Solution logicielle intégrée utilisant la caméra standard de la tablette ou du PC pour suivre les mouvements du visage et transformer le nez en curseur virtuel. Distance recommandée : 50 à 70 cm avec un éclairage frontal stable.</li>
+                    <li><b>Contacteurs &amp; Switchs d'Accessibilité :</b> Prise en charge des contacteurs physiques (branchés via adaptateur USB/Bluetooth) configurés en émulation de clic ou en balayage progressif (*Scanning* via le système d'exploitation).</li>
+                    <li><b>Tactile &amp; Souris Classique :</b> Idéal pour l'accompagnant lors de l'édition ou pour les utilisateurs ayant une motricité fine préservée.</li>
                 </ul>
 
-                <h3>2. Le Bandeau Supérieur</h3>
+                <h2>3. Normes Cliniques &amp; Codage Couleur PODD</h2>
+                <p>Pour structurer la pensée et faciliter la mémorisation visuelle, l'application intègre le **code couleur persistant inspiré de la norme PODD** :</p>
                 <ul>
-                    <li><b>⬅️ RETOUR :</b> Permet de revenir à la page ou au niveau précédent.</li>
-                    <li><b>📅 CALENDRIER :</b> Affiche le calendrier visuel du mois avec vos événements personnalisés.</li>
-                    <li><b>🔍 GOOGLE :</b> Accès direct à la recherche d'images.</li>
-                    <li><b>✉ CONTACT :</b> Message de support par email.</li>
-                    <li><b>⚙ RÉGLAGES :</b> Accède aux interrupteurs des options d'accessibilité, de commande oculaire et de synthèse vocale.</li>
-                    <li><b>💾 EXPORT :</b> Sauvegarde complète directement sur clé USB ou stockage local.</li>
+                    <li>🟡 <b>Jaune :</b> Pronoms, personnes &amp; identité.</li>
+                    <li>🟢 <b>Vert :</b> Verbes &amp; actions.</li>
+                    <li>🟠 <b>Orange :</b> Besoins immédiats, objets &amp; alimentation.</li>
+                    <li>🔵 <b>Bleu :</b> Émotions, sentiments &amp; états physiques.</li>
+                    <li>🟣 <b>Rose :</b> Interactions sociales &amp; expressions courantes.</li>
+                    <li>⚫ <b>Gris :</b> Lieux, repères spatiaux &amp; mots invariables.</li>
                 </ul>
 
-                <h3>3. La Barre d'Expression (En haut)</h3>
+                <h2>4. Fonctions Avancées pour les Aidants &amp; Ergothérapeutes</h2>
                 <ul>
-                    <li><b>Zone des mots :</b> Affiche la suite des pictogrammes pour former votre phrase.</li>
-                    <li><b>🔊 Bouton Haut-Parleur :</b> Lit la phrase complète à haute voix.</li>
-                    <li><b>❌ Bouton Croix :</b> Efface entièrement la barre.</li>
+                    <li><b>Masquage de Vocabulaire (Hide &amp; Show) :</b> Permet de masquer temporairement les pictogrammes non utilisés pour réduire la surcharge cognitive de l'utilisateur sans supprimer la structure spatiale du classeur.</li>
+                    <li><b>Marqueurs de Syntaxe Visuelle :</b> Affichage des indicateurs temporels (Présent, Passé, Futur) et de tournure (Négation, Question) sur les pictogrammes.</li>
+                    <li><b>Banque ARASAAC Intégrée :</b> Recherche en ligne directe de pictogrammes officiels normalisés pour enrichir instantanément les chapitres.</li>
+                    <li><b>Mode Bip + Flash d'Urgence :</b> En cas de fatigue vocale ou d'environnement bruyant, l'activation du mode secours génère un signal sonore (bip) et un flash visuel rapide à l'écran pour appeler l'aidant ou l'infirmière.</li>
                 </ul>
 
-                <h3>4. Le Bandeau Inférieur (Navigation rapide)</h3>
+                <h2>5. Sauvegarde, Autonomie &amp; Portabilité USB</h2>
+                <p>PictoSpeak est une Progressive Web App (PWA) conçue pour fonctionner entièrement hors ligne :</p>
                 <ul>
-                    <li><b>🚨 URGENCE :</b> Appel d'urgence visuel et sonore.</li>
-                    <li><b>💬 PHRASES :</b> Liste de phrases pré-enregistrées.</li>
-                    <li><b>⌨️ CLAVIER :</b> Clavier virtuel texte libre.</li>
-                    <li><b>➕ AJOUTER :</b> Création de chapitres ou pictogrammes (Arasaac / Photo).</li>
-                    <li><b>✏️ EDIT :</b> Mode édition pour modifier, déplacer, masquer ou supprimer des éléments.</li>
+                    <li><b>Export sur Clé USB :</b> Le bouton <b>💾 EXPORT</b> permet de sauvegarder l'intégralité de l'application (code, chapitres, pictogrammes personnalisés, événements du calendrier) dans un fichier HTML unique stocké directement sur une clé USB.</li>
+                    <li><b>Indépendance Serveur :</b> Aucune donnée personnelle n'est stockée sur un serveur distant, garantissant le respect total de la vie privée et la conformité RGPD.</li>
                 </ul>
+
+                <h2>6. Support &amp; Maintenance</h2>
+                <p>Pour toute question technique, préconisation de matériel par un ergothérapeute ou suggestion d'amélioration, contactez l'équipe de développement à l'adresse : <b>handideveloppe@proton.me</b></p>
             </div>
             <div class="notice-footer">
-                <button onclick="imprimerNotice()" style="padding:10px 15px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🖨️ IMPRIMER</button>
-                <button onclick="telechargerNoticePDF()" style="padding:10px 15px; background:var(--vert); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">📥 TÉLÉCHARGER EN PDF</button>
+                <button onclick="imprimerNotice()" style="padding:10px 15px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🖨️ IMPRIMER LE MANUEL</button>
+                <button onclick="telechargerNoticePDF()" style="padding:10px 15px; background:var(--vert); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">📥 TÉLÉCHARGER LE PDF</button>
                 <button onclick="fermerNotice()" style="padding:10px 15px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">FERMER</button>
             </div>
         </div>
@@ -404,7 +430,7 @@
         </div>
     </div>
 
-    <!-- Bandeau du HAUT (6 boutons) -->
+    <!-- Bandeau HAUT dynamique -->
     <div class="header">
         <button id="mod-RETOUR" class="btn-h" style="background:var(--retour); color:white;" onclick="back()">⬅️ RETOUR</button>
         <button id="mod-CALENDRIER-BTN" class="btn-h" style="background:var(--orange); color:white;" onclick="go('p-calendrier')">📅 CALENDRIER</button>
@@ -419,7 +445,6 @@
             <div class="grille-menu" id="grille-sommaire"></div>
         </div>
 
-        <!-- PAGE CALENDRIER VISUEL PERSONNALISABLE -->
         <div id="p-calendrier" class="page">
             <div class="podd-page-header">
                 <span style="font-weight:bold; font-size:14px; color:var(--dark);">📌 DOMAINE : CALENDRIER &amp; ÉVÉNEMENTS</span>
@@ -492,6 +517,7 @@
                 <span class="podd-tab-badge">INDEX PODD</span>
             </div>
             <input type="text" class="edit-input-field" value="RÉGLAGES &amp; OPTIONS" oninput="modifierDomaineDirect(this)">
+            
             <h2>🎨 ACCOMPAGNEMENT VISUEL CAA / PODD</h2>
             <div class="reglage-item">
                 <div class="slider-row">
@@ -524,11 +550,11 @@
                 </div>
             </div>
 
-            <h2>👁️ ACCÈS OCULAIRE &amp; DWELL TIME (SUPPORT PÉRIPHÉRIQUES)</h2>
+            <h2>👁️ ACCÈS OCULAIRE &amp; DÉTECTION CAMÉRA (SUIVI DE TÊTE)</h2>
             <div class="reglage-item">
-                <p style="font-size:12px; color:#555; margin-top:0; margin-bottom:10px;">Compatible barres USB, apps Android (EVA Facial Mouse) &amp; iOS (Suivi de tête natif).</p>
+                <p style="font-size:12px; color:#555; margin-top:0; margin-bottom:10px;">Active le suivi automatique du nez/visage via la webcam et la validation au survol.</p>
                 <div class="toggle-row">
-                    <span>Mode Sélection au Regard / Survol (Dwell Time)</span>
+                    <span>Mode Sélection au Regard / Tête (Dwell Time + Caméra)</span>
                     <label class="switch">
                         <input type="checkbox" id="chk-dwell-mode" onchange="toggleDwellMode(this.checked)">
                         <span class="slider"></span>
@@ -541,6 +567,27 @@
                         <option value="1.2" selected>1.2 seconde (Recommandé)</option>
                         <option value="1.8">1.8 seconde (Anti-clignotement)</option>
                         <option value="2.5">2.5 secondes (Lent / Débutant)</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2>🎯 STYLE ET APPARENCE DU CURSEUR (SUIVI / SOURIS)</h2>
+            <div class="reglage-item">
+                <div class="slider-row">
+                    <label for="curseur-style-select">Forme / Type de curseur :</label>
+                    <select id="curseur-style-select" onchange="changerStyleCurseur(this.value)">
+                        <option value="point-rouge">🔴 Point rouge lumineux (Haute visibilité)</option>
+                        <option value="cible">🎯 Cible / Viseur précis</option>
+                        <option value="main">🖐️ Main classique</option>
+                        <option value="cercle-bleu" selected>🔵 Cercle bleu PODD</option>
+                    </select>
+                </div>
+                <div class="slider-row">
+                    <label for="curseur-taille-range">Taille du curseur :</label>
+                    <select id="curseur-taille-range" onchange="changerTailleCurseur(this.value)">
+                        <option value="petit">Petit (Discret)</option>
+                        <option value="moyen" selected>Moyen (Recommandé)</option>
+                        <option value="grand">Grand (Très visible / Myope)</option>
                     </select>
                 </div>
             </div>
@@ -630,7 +677,7 @@
         </div>
     </div>
     
-    <!-- Barre du BAS (5 boutons) -->
+    <!-- Bandeau BAS dynamique -->
     <div class="footer">
         <button id="mod-ALERTE-FOOTER" class="btn-f" style="background:var(--rouge);" onclick="alerte()">🚨 URGENCE</button>
         <button id="mod-PHRASES" class="btn-f" style="background:var(--violet);" onclick="go('p-phrases')">💬 PHRASES</button>
@@ -648,6 +695,13 @@
 
         let siri, hist = ['sommaire'], voicesList = [], audioUnlocked = false, bipModeActive = false;
         let dwellActive = false, dwellTimer = null, dwellCurrentTarget = null, dwellDelaySec = 1.2;
+        let curseurElement = null;
+        
+        let cameraUtils = null;
+        let faceMesh = null;
+        let posXActuelle = window.innerWidth / 2;
+        let posYActuelle = window.innerHeight / 2;
+        const facteurLissage = 0.3;
 
         const nms = ["IDENTITE DU L'UTILISATEUR", "FAMILLE & PERSONELS", "BESOINS IMMEDIATS", "EMOTIONS & ETAT", "ACTIONS & DEMANDE", "LIEUX & SORTIES"];
         const clsStandard = ["#9b59b6", "#FF9800", "#2196F3", "#4CAF50", "#e67e22", "#34495e"];
@@ -689,6 +743,7 @@
             loadVoiceSettings();
             loadFlashSettings();
             loadDwellSettings();
+            initCurseurPersonnalise();
             
             bipModeActive = localStorage.getItem('pictospeak_bip_mode') === 'true';
             let chkBip = document.getElementById('chk-bip-mode');
@@ -730,7 +785,162 @@
         function toggleDwellMode(val) {
             dwellActive = val;
             localStorage.setItem('pictospeak_dwell_active', val);
+            
+            if (curseurElement) {
+                curseurElement.style.display = val ? 'flex' : 'none';
+            }
+
+            if (val) {
+                demarrerSuiviTeteMediaPipe();
+            } else {
+                arreterSuiviTeteMediaPipe();
+            }
+
             initDwellListeners();
+        }
+
+        function demarrerSuiviTeteMediaPipe() {
+            let videoEl = document.getElementById('webcam-feed');
+            if (!videoEl) return;
+
+            videoEl.style.display = 'block';
+
+            if (!faceMesh) {
+                faceMesh = new FaceMesh({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+                });
+
+                faceMesh.setOptions({
+                    maxNumFaces: 1,
+                    refineLandmarks: false,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+
+                faceMesh.onResults(onFaceMeshResults);
+            }
+
+            if (!cameraUtils) {
+                cameraUtils = new Camera(videoEl, {
+                    onFrame: async () => {
+                        if (dwellActive && faceMesh) {
+                            await faceMesh.send({ image: videoEl });
+                        }
+                    },
+                    width: 320,
+                    height: 240
+                });
+            }
+
+            cameraUtils.start().catch(err => {
+                alert("⚠️ Erreur de démarrage de la caméra : " + err.message);
+            });
+        }
+
+        function arreterSuiviTeteMediaPipe() {
+            if (cameraUtils) {
+                cameraUtils.stop();
+            }
+            let videoEl = document.getElementById('webcam-feed');
+            if (videoEl) {
+                videoEl.style.display = 'none';
+            }
+        }
+
+        function onFaceMeshResults(results) {
+            if (!dwellActive || !results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
+
+            let landmarks = results.multiFaceLandmarks[0];
+            let noseLandmark = landmarks[1];
+
+            let targetX = (1 - noseLandmark.x) * window.innerWidth;
+            let targetY = noseLandmark.y * window.innerHeight;
+
+            posXActuelle = posXActuelle + (targetX - posXActuelle) * facteurLissage;
+            posYActuelle = posYActuelle + (targetY - posYActuelle) * facteurLissage;
+
+            deplacerCurseurEtSimulerSurvol(posXActuelle, posYActuelle);
+        }
+
+        function deplacerCurseurEtSimulerSurvol(x, y) {
+            if (curseurElement) {
+                curseurElement.style.left = x + 'px';
+                curseurElement.style.top = y + 'px';
+            }
+
+            let elEnDessous = document.elementFromPoint(x, y);
+            if (!elEnDessous) return;
+
+            let cibleInteractive = elEnDessous.closest('.picto, .btn-ch, .btn-f, .btn-h');
+            
+            if (cibleInteractive && cibleInteractive !== dwellCurrentTarget) {
+                cancelDwellTimer();
+                startDwellTimer({ currentTarget: cibleInteractive });
+            } else if (!cibleInteractive && dwellCurrentTarget) {
+                cancelDwellTimer();
+            }
+        }
+
+        function initCurseurPersonnalise() {
+            if (!document.getElementById('custom-cursor')) {
+                let div = document.createElement('div');
+                div.id = 'custom-cursor';
+                document.body.appendChild(div);
+            }
+            curseurElement = document.getElementById('custom-cursor');
+            
+            document.addEventListener('mousemove', (e) => {
+                if (curseurElement && dwellActive && !cameraUtils) {
+                    curseurElement.style.left = e.clientX + 'px';
+                    curseurElement.style.top = e.clientY + 'px';
+                }
+            });
+
+            chargerPreferencesCurseur();
+        }
+
+        function changerStyleCurseur(type) {
+            localStorage.setItem('pictospeak_curseur_style', type);
+            appliquerStyleCurseur(type);
+        }
+
+        function changerTailleCurseur(taille) {
+            localStorage.setItem('pictospeak_curseur_taille', taille);
+            appliquerTailleCurseur(taille);
+        }
+
+        function appliquerStyleCurseur(type) {
+            if (!curseurElement) return;
+            let taille = localStorage.getItem('pictospeak_curseur_taille') || 'moyen';
+            let px = taille === 'petit' ? '20px' : (taille === 'grand' ? '50px' : '35px');
+
+            if (type === 'point-rouge') {
+                curseurElement.innerHTML = `<div style="width:${px}; height:${px}; background:#ff4757; border-radius:50%; box-shadow: 0 0 10px #ff4757, 0 0 20px rgba(255,71,87,0.5); border:2px solid white;"></div>`;
+            } else if (type === 'cible') {
+                curseurElement.innerHTML = `<div style="width:${px}; height:${px}; border:3px solid #e74c3c; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center;"><div style="width:4px; height:4px; background:#e74c3c; border-radius:50%;"></div></div>`;
+            } else if (type === 'main') {
+                curseurElement.innerHTML = `<span style="font-size:30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🖐️</span>`;
+            } else { 
+                curseurElement.innerHTML = `<div style="width:${px}; height:${px}; background:rgba(33, 150, 243, 0.4); border:3px solid #2196F3; border-radius:50%;"></div>`;
+            }
+        }
+
+        function appliquerTailleCurseur(taille) {
+            let styleActuel = localStorage.getItem('pictospeak_curseur_style') || 'cercle-bleu';
+            appliquerStyleCurseur(styleActuel);
+        }
+
+        function chargerPreferencesCurseur() {
+            let savedStyle = localStorage.getItem('pictospeak_curseur_style') || 'cercle-bleu';
+            let savedTaille = localStorage.getItem('pictospeak_curseur_taille') || 'moyen';
+
+            let selectStyle = document.getElementById('curseur-style-select');
+            if (selectStyle) selectStyle.value = savedStyle;
+
+            let selectTaille = document.getElementById('curseur-taille-range');
+            if (selectTaille) selectTaille.value = savedTaille;
+
+            appliquerStyleCurseur(savedStyle);
         }
 
         function saveDwellSettings() {
@@ -749,6 +959,11 @@
             dwellDelaySec = parseFloat(localStorage.getItem('pictospeak_dwell_delay') || "1.2");
             let selectDwell = document.getElementById('dwell-time-select');
             if(selectDwell) selectDwell.value = dwellDelaySec.toString();
+
+            if (curseurElement) {
+                curseurElement.style.display = dwellActive ? 'flex' : 'none';
+            }
+            if (dwellActive) demarrerSuiviTeteMediaPipe();
         }
 
         function initDwellListeners() {
@@ -796,21 +1011,28 @@
         
         function imprimerNotice() {
             let contenu = document.getElementById('notice-text-content').innerHTML;
-            let fenetre = window.open('', '', 'height=600,width=800');
-            fenetre.document.write('<html><head><title>Notice PictoSpeak</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>');
+            let fenetre = window.open('', '', 'height=700,width=900');
+            fenetre.document.write('<html><head><title>Manuel Officiel PictoSpeak</title></head><body style="font-family:sans-serif; padding:30px; color:#333;">' + contenu + '</body></html>');
             fenetre.document.close();
             fenetre.focus();
             fenetre.print();
         }
 
         function telechargerNoticePDF() {
-            let contenu = document.getElementById('notice-text-content').innerHTML;
-            let blob = new Blob(['<!DOCTYPE html><html><head><meta charset="utf-8"><title>Notice PictoSpeak</title></head><body style="font-family:sans-serif; padding:20px;">' + contenu + '</body></html>'], {type: 'text/html'});
-            let a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'NOTICE_PICTOSPEAK.html';
-            a.click();
-            alert("✅ Notice téléchargée ! Vous pouvez l'ouvrir dans un navigateur ou l'imprimer en PDF.");
+            let element = document.getElementById('notice-text-content');
+            let opt = {
+                margin:       10,
+                filename:     'MANUEL_OFFICIEL_PICTOSPEAK.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf().set(opt).from(element).save();
+            } else {
+                alert("Erreur : La bibliothèque PDF n'est pas encore chargée.");
+            }
         }
 
         function toggleHideMasked(val) {
@@ -1008,6 +1230,14 @@
                 if(lblLic) lblLic.innerText = "Clé enregistrée : " + cleStockee;
             } else {
                 if(screenLic) screenLic.style.display = 'flex';
+            }
+        }
+
+        function genererEssaiGratuit() {
+            let input = document.getElementById('lic-input');
+            if (input) {
+                input.value = "TEST-24H";
+                soumettreLicence();
             }
         }
 
