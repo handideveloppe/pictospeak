@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -69,7 +70,7 @@
         .touche-space { flex: 0.25; max-width: none; font-size: 12px; }
         .touche-del { flex: 1; max-width: 50px; font-size: 16px; }
         
-        /* Bandeau du HAUT auto-adaptatif (Flexbox) */
+        /* Bandeau du HAUT auto-adaptatif */
         .header { background: var(--dark); padding: 10px; display: flex; flex-wrap: wrap; gap: 4px; z-index: 10; flex-shrink: 0; justify-content: center; align-items: center; }
         .btn-h { flex: 1; background: white; border: none; padding: 12px 2px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 9px; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 55px; }
         
@@ -216,7 +217,7 @@
         input:checked + .slider { background-color: var(--vert); }
         input:checked + .slider:before { transform: translateX(20px); }
         
-        /* Bandeau du BAS auto-adaptatif (Flexbox) */
+        /* Bandeau du BAS auto-adaptatif */
         .footer { background: #34495E; padding: 10px; display: flex; flex-wrap: wrap; gap: 4px; position: fixed; bottom: 0; width: 100%; z-index: 100; justify-content: center; align-items: center; }
         .btn-f { flex: 1; padding: 12px 2px; border-radius: 10px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 9px; text-transform: uppercase; position: relative; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 55px; }
 
@@ -273,6 +274,10 @@
         .notice-body h2 { color: #2980b9; border-bottom: 2px solid #2980b9; padding-bottom: 5px; margin-top: 25px; }
         .notice-body h3 { color: #16a085; margin-top: 15px; }
         .notice-footer { padding: 15px 20px; background: #f1f2f6; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #ddd; }
+        
+        .notice-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .notice-table th, .notice-table td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        .notice-table th { background: #f8f9fa; color: var(--dark); }
     </style>
 </head>
 <body onload="init()" onclick="unlockAudio()" ontouchstart="unlockAudio()">
@@ -303,7 +308,7 @@
             
             <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
                 <p style="font-size:12px; color:#666; margin-bottom: 8px;">Pas encore de licence ou besoin d'une clé USB ?</p>
-                <a href="https://boutique-de-pictospeak.netlify.app/" target="_blank" style="display: block; width: 100%; padding: 12px; background: #e67e22; color: white; text-decoration: none; border-radius: 10px; font-size: 14px; font-weight: bold; text-align: center;">Pour commander</a>
+                <a href="https://boutique-de-pictospeak.netlify.app/" target="_blank" style="display: block; width: 100%; padding: 12px; background: #e67e22; color: white; text-decoration: none; border-radius: 10px; font-size: 14px; font-weight: bold; text-align: center;">Accéder à la boutique</a>
             </div>
 
             <div id="lic-error">Clé invalide ou période de test expirée.</div>
@@ -320,56 +325,135 @@
     <div id="notice-modal">
         <div class="notice-content-box">
             <div class="notice-header">
-                <h3 style="margin:0;">📖 MANUEL OFFICIEL &amp; RÉFÉRENTIEL TECHNIQUE — PICTOSPEAK</h3>
+                <h3 style="margin:0;">📖 MANUEL OFFICIEL, ÉTUDE DE MARCHÉ & RÉFÉRENTIEL TECHNIQUE — PICTOSPEAK</h3>
                 <button onclick="fermerNotice()" style="background:var(--rouge); color:white; border:none; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer;">×</button>
             </div>
             <div class="notice-body" id="notice-text-content">
                 <div style="text-align:center; border-bottom:3px solid #2C3E50; padding-bottom:15px; margin-bottom:25px;">
-                    <h1 style="color:#2C3E50; margin:0; font-size:26px;">PICTOSPEAK : GUIDE CLINIQUE &amp; TECHNIQUE COMPLET</h1>
-                    <p style="color:#7f8c8d; font-size:13px; margin:5px 0 0 0;">Solution Universelle de Communication Alternative et Améliorée (CAA / PODD) pour enfants, adolescents et adultes en situation de handicap.</p>
+                    <h1 style="color:#2C3E50; margin:0; font-size:26px;">PICTOSPEAK : GUIDE CLINIQUE, COMPARATIF DE MARCHÉ & NOTICE TECHNIQUE</h1>
+                    <p style="color:#7f8c8d; font-size:13px; margin:5px 0 0 0;">Solution Universelle de Communication Alternative et Améliorée (CAA / PODD) pour enfants, adolescents, adultes aphasiques et personnes en situation de handicap.</p>
                 </div>
 
-                <h2>1. Introduction &amp; Philosophie de l'Application</h2>
-                <p><b>PictoSpeak</b> a été conçu pour répondre aux besoins fondamentaux d'expression et d'autonomie des personnes présentant des troubles de la communication (troubles du spectre de l'autisme, retards de langage sévères, paralysies cérébrales, maladies neurodégénératives, polyhandicap).</p>
-                <p>L'application s'appuie sur une structure robuste et verrouillée garantissant qu'aucune modification ou personnalisation (ajout de pictogrammes, modification de chapitres) ne viendra perturber l'ergonomie globale ou désorganiser le classeur.</p>
+                <h2>1. Étude de marché & Positionnement de PictoSpeak</h2>
+                <p>Une analyse comparative exhaustive a été menée sur le marché des applications de CAA (disponibles sur iOS, Android et le Web) afin d'identifier les besoins non couverts par les offres existantes :</p>
+                
+                <table class="notice-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie d'Application</th>
+                            <th>Exemples du Marché</th>
+                            <th>Avantages & Limites constatés</th>
+                            <th>Apport spécifique de PictoSpeak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Solutions Gratuites / Basiques</b></td>
+                            <td><i>Pic'Talk / Pictalk AAC, LetMeTalk, Picto Kids, Autisme Kid, Pic Paul</i></td>
+                            <td>Accès gratuit et simple, mais ergonomie souvent limitée, absence de gestion d'urgence, peu adaptées aux adultes ou à l'aphasie.</td>
+                            <td>Ergonomie professionnelle, intergénérationnelle, avec commande oculaire native et bouton d'urgence.</td>
+                        </tr>
+                        <tr>
+                            <td><b>Applications Médicales / Spécifiques</b></td>
+                            <td><i>Medipicto, Souffleur CAA, Communpicto, Pictoplaning, Aphasix</i></td>
+                            <td>Très ciblées (urgences médicales ou planification), mais cloisonnées à un seul usage et nécessitant parfois des abonnements.</td>
+                            <td>Outil global tout-en-un (vocabulaire quotidien PODD + fonction urgence infirmier + calendrier visuel).</td>
+                        </tr>
+                        <tr>
+                            <td><b>Logiciels Spécialisés Haut de Gamme</b></td>
+                            <td><i>TD Snap, Proloquo2Go, Mind Express, Grid 3, TalkTablet</i></td>
+                            <td>Très complets mais extrêmement coûteux (250 € à 1500 €), avec une prise en main lourde pour les familles.</td>
+                            <td><b>Prix abordable (15 € à vie)</b> sans abonnement, licence définitive et option sur Clé USB physique.</td>
+                        </tr>
+                    </tbody>
+                </table>
 
-                <h2>2. Interfaçage Matériel &amp; Accessibilité Multimodale</h2>
-                <p>PictoSpeak est compatible à 100% avec l'ensemble des équipements et méthodes d'accès existants sur le marché :</p>
+                <h2>2. Adaptation spécifique aux Personnes Aphasiques (AVC & Hospitalisation)</h2>
+                <p>L'aphasie (perte partielle ou totale de la capacité à s'exprimer oralement ou par écrit suite à un AVC, un traumatisme crânien ou une affection neurologique) nécessite une réponse adaptée :</p>
                 <ul>
-                    <li><b>Suivi Oculaire Externe (Barres Tobii, EyeTech, Irisbond, etc.) :</b> L'application intercepte nativement le pointeur de la souris piloté par les barres ophtalmiques du marché. Le survol déclenche l'anneau de progression (*Dwell Time*) pour valider la sélection sans clic physique.</li>
-                    <li><b>Suivi de Tête / Nez par Webcam (MediaPipe Face Mesh) :</b> Solution logicielle intégrée utilisant la caméra standard de la tablette ou du PC pour suivre les mouvements du visage et transformer le nez en curseur virtuel. Distance recommandée : 50 à 70 cm avec un éclairage frontal stable.</li>
-                    <li><b>Contacteurs &amp; Switchs d'Accessibilité :</b> Prise en charge des contacteurs physiques (branchés via adaptateur USB/Bluetooth) configurés en émulation de clic ou en balayage progressif (*Scanning* via le système d'exploitation).</li>
-                    <li><b>Tactile &amp; Souris Classique :</b> Idéal pour l'accompagnant lors de l'édition ou pour les utilisateurs ayant une motricité fine préservée.</li>
+                    <li><b>Contournement du blocage du mot :</b> L'utilisation d'indexations visuelles et de pictogrammes classés par catégories permet au patient de désigner des concepts ou des besoins fondamentaux sans passer par la formulation orale.</li>
+                    <li><b>Appel d'Urgence / Infirmier :</b> Le bouton 🚨 d'alerte génère un signal sonore (Bip) et un flash visuel pour alerter immédiatement les soignants ou les proches en milieu hospitalier ou à domicile.</li>
+                    <li><b>Accès Multimodal :</b> Pour les patients présentant une hémiplegie ou des troubles moteurs associés, l'activation de la commande oculaire (Dwell Time) ou du suivi de tête par webcam permet de s'exprimer sans contact physique.</li>
                 </ul>
 
-                <h2>3. Normes Cliniques &amp; Codage Couleur PODD</h2>
-                <p>Pour structurer la pensée et faciliter la mémorisation visuelle, l'application intègre le **code couleur persistant inspiré de la norme PODD** :</p>
+                <h2>3. Guide complet d'utilisation de l'Interface</h2>
+                <p>Ci-dessous la description exacte de chaque bouton et fonction présent sur l'application :</p>
+                <table class="notice-table">
+                    <thead>
+                        <tr>
+                            <th>Bouton / Fonction</th>
+                            <th>Rôle et Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>🚨 URGENCE / ALERTE</b></td>
+                            <td>Déclenche le mode flash visuel et la synthèse vocale d'urgence ("Au secours") pour appeler immédiatement l'aidant.</td>
+                        </tr>
+                        <tr>
+                            <td><b>🔊 Haut-parleur (Barre)</b></td>
+                            <td>Lit à voix haute l'intégralité de la phrase ou séquence de pictogrammes assemblée dans le bandeau supérieur.</td>
+                        </tr>
+                        <tr>
+                            <td><b>❌ Effacer tout</b></td>
+                            <td>Vide instantanément la barre de phrase en cours.</td>
+                        </tr>
+                        <tr>
+                            <td><b>💬 PHRASES</b></td>
+                            <td>Ouvre la bibliothèque de phrases rapides prédéfinies pour un accès immédiat aux formules usuelles.</td>
+                        </tr>
+                        <tr>
+                            <td><b>⌨️ CLAVIER</b></td>
+                            <td>Affiche ou masque le clavier virtuel intégré pour saisir du texte lettre par lettre.</td>
+                        </tr>
+                        <tr>
+                            <td><b>➕ AJOUTER</b></td>
+                            <td>Permet d'ajouter un pictogramme depuis la banque ARASAAC, de prendre une photo ou de créer un nouveau chapitre.</td>
+                        </tr>
+                        <tr>
+                            <td><b>✏️ EDIT</b></td>
+                            <td>Active le mode édition : déverrouille la modification des textes, le masquage des pictogrammes (👁), l'ajout de marqueurs temporels (⏱) et la suppression.</td>
+                        </tr>
+                        <tr>
+                            <td><b>📅 CALENDRIER</b></td>
+                            <td>Donne accès au calendrier visuel dynamique du jour et du mois pour la structuration temporelle.</td>
+                        </tr>
+                        <tr>
+                            <td><b>💾 EXPORT</b></td>
+                            <td>Enregistre l'application et l'ensemble des personnalisations dans un fichier HTML unique directement sur votre appareil ou clé USB.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>4. Comment activer et configurer le Suivi du Regard (Dwell Time) & Caméra</h2>
+                <ol>
+                    <li>Rendez-vous dans la rubrique <b>⚙ RÉGLAGES</b> du bandeau supérieur.</li>
+                    <li>Faites défiler jusqu'à la section <b>👁️ ACCÈS OCULAIRE & DÉTECTION CAMÉRA</b>.</li>
+                    <li>Cochez la case <b>"Mode Sélection au Regard / Tête (Dwell Time + Caméra)"</b>. La webcam s'activera pour suivre le mouvement de la tête (pointe du nez).</li>
+                    <li>Ajustez le <b>Temps de fixation avant validation</b> (ex: 1.2 seconde recommandée) selon la fatigabilité de l'utilisateur.</li>
+                    <li>Personnalisez le style du curseur visuel (ex: Point rouge lumineux ou Cercle bleu PODD) et sa taille selon les besoins visuels.</li>
+                </ol>
+
+                <h2>5. Comment ajouter et personnaliser des Pictogrammes</h2>
                 <ul>
-                    <li>🟡 <b>Jaune :</b> Pronoms, personnes &amp; identité.</li>
-                    <li>🟢 <b>Vert :</b> Verbes &amp; actions.</li>
-                    <li>🟠 <b>Orange :</b> Besoins immédiats, objets &amp; alimentation.</li>
-                    <li>🔵 <b>Bleu :</b> Émotions, sentiments &amp; états physiques.</li>
-                    <li>🟣 <b>Rose :</b> Interactions sociales &amp; expressions courantes.</li>
-                    <li>⚫ <b>Gris :</b> Lieux, repères spatiaux &amp; mots invariables.</li>
+                    <li><b>Via la recherche ARASAAC :</b> Cliquez sur <code>➕ AJOUTER</code> > <code>🎨 PICTOGRAMME (RECHERCHE ARASAAC)</code>, tapez le mot recherché (ex: "Manger", "Eau"), sélectionnez l'image et validez le chapitre de destination.</li>
+                    <li><b>Via une Photo personnelle :</b> Cliquez sur <code>➕ AJOUTER</code> > <code>📸 PHOTO</code> pour prendre une photo en direct ou sélectionner une image de votre galerie.</li>
+                    <li><b>Via le Mode Édition :</b> Activez le bouton <code>✏️ EDIT</code> pour modifier les libellés, masquer un pictogramme inactif ou attribuer une marque de syntaxe.</li>
                 </ul>
 
-                <h2>4. Fonctions Avancées pour les Aidants &amp; Ergothérapeutes</h2>
+                <h2>6. Codage Couleur Persistant (Norme PODD)</h2>
+                <p>L'application intègre le codage couleur officiel PODD pour faciliter l'indexation visuelle :</p>
                 <ul>
-                    <li><b>Masquage de Vocabulaire (Hide &amp; Show) :</b> Permet de masquer temporairement les pictogrammes non utilisés pour réduire la surcharge cognitive de l'utilisateur sans supprimer la structure spatiale du classeur.</li>
-                    <li><b>Marqueurs de Syntaxe Visuelle :</b> Affichage des indicateurs temporels (Présent, Passé, Futur) et de tournure (Négation, Question) sur les pictogrammes.</li>
-                    <li><b>Banque ARASAAC Intégrée :</b> Recherche en ligne directe de pictogrammes officiels normalisés pour enrichir instantanément les chapitres.</li>
-                    <li><b>Mode Bip + Flash d'Urgence :</b> En cas de fatigue vocale ou d'environnement bruyant, l'activation du mode secours génère un signal sonore (bip) et un flash visuel rapide à l'écran pour appeler l'aidant ou l'infirmière.</li>
+                    <li>🟡 <b>Jaune :</b> Pronoms, personnes & identité.</li>
+                    <li>🟢 <b>Vert :</b> Verbes & actions.</li>
+                    <li>🟠 <b>Orange :</b> Besoins immédiats, objets & alimentation.</li>
+                    <li>🔵 <b>Bleu :</b> Émotions, sentiments & états physiques.</li>
+                    <li>🟣 <b>Rose :</b> Interactions sociales & expressions courantes.</li>
+                    <li>⚫ <b>Gris :</b> Lieux, repères spatiaux & mots invariables.</li>
                 </ul>
 
-                <h2>5. Sauvegarde, Autonomie &amp; Portabilité USB</h2>
-                <p>PictoSpeak est une Progressive Web App (PWA) conçue pour fonctionner entièrement hors ligne :</p>
-                <ul>
-                    <li><b>Export sur Clé USB :</b> Le bouton <b>💾 EXPORT</b> permet de sauvegarder l'intégralité de l'application (code, chapitres, pictogrammes personnalisés, événements du calendrier) dans un fichier HTML unique stocké directement sur une clé USB.</li>
-                    <li><b>Indépendance Serveur :</b> Aucune donnée personnelle n'est stockée sur un serveur distant, garantissant le respect total de la vie privée et la conformité RGPD.</li>
-                </ul>
-
-                <h2>6. Support &amp; Maintenance</h2>
-                <p>Pour toute question technique, préconisation de matériel par un ergothérapeute ou suggestion d'amélioration, contactez l'équipe de développement à l'adresse : <b>handideveloppe@proton.me</b></p>
+                <h2>7. Support & Maintenance</h2>
+                <p>Pour toute question technique ou accompagnement : <b>handideveloppe@proton.me</b></p>
             </div>
             <div class="notice-footer">
                 <button onclick="imprimerNotice()" style="padding:10px 15px; background:var(--bleu); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🖨️ IMPRIMER LE MANUEL</button>
@@ -2122,3 +2206,4 @@
     </script>
 </body>
 </html>
+```
